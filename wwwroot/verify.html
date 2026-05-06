@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Diploma Dogrulama</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/">Diploma Verification</a>
+    <nav class="nav">
+      <a href="/">Kayit</a>
+      <a class="active" href="/verify.html">Dogrulama</a>
+    </nav>
+  </header>
+
+  <main class="shell">
+    <section class="panel">
+      <div class="panel-header">
+        <p class="eyebrow">Blockchain Kontrolu</p>
+        <h1>Diploma Dogrulama</h1>
+      </div>
+
+      <form id="verifyForm" class="form">
+        <label class="file-zone" for="verifyFile">
+          <span id="verifyFileName">PDF sec</span>
+          <input id="verifyFile" name="file" type="file" accept="application/pdf,.pdf" required>
+        </label>
+        <button class="primary-button" type="submit">Dogrula</button>
+      </form>
+
+      <div id="verifyMessage" class="message" hidden></div>
+    </section>
+
+    <section id="verifyResult" class="result-grid single" hidden>
+      <article class="result-panel">
+        <h2>Dogrulama Sonucu</h2>
+        <dl class="details">
+          <div>
+            <dt>Durum</dt>
+            <dd id="verifyStatus"></dd>
+          </div>
+          <div>
+            <dt>PDF Hash</dt>
+            <dd id="verifyHash"></dd>
+          </div>
+          <div>
+            <dt>Transaction Hash</dt>
+            <dd id="verifyTx"></dd>
+          </div>
+          <div>
+            <dt>Blockchain Kayit Tarihi</dt>
+            <dd id="verifyTimestamp"></dd>
+          </div>
+          <div>
+            <dt>Ag</dt>
+            <dd id="verifyNetwork"></dd>
+          </div>
+        </dl>
+      </article>
+    </section>
+  </main>
+
+  <script src="/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Diploma Kayit</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/">Diploma Verification</a>
+    <nav class="nav">
+      <a class="active" href="/">Kayit</a>
+      <a href="/verify.html">Dogrulama</a>
+    </nav>
+  </header>
+
+  <main class="shell">
+    <section class="panel">
+      <div class="panel-header">
+        <p class="eyebrow">Sepolia MVP</p>
+        <h1>Diploma Kayit</h1>
+      </div>
+
+      <form id="uploadForm" class="form">
+        <label class="file-zone" for="uploadFile">
+          <span id="uploadFileName">PDF sec</span>
+          <input id="uploadFile" name="file" type="file" accept="application/pdf,.pdf" required>
+        </label>
+        <button class="primary-button" type="submit">Kaydet</button>
+      </form>
+
+      <div id="uploadMessage" class="message" hidden></div>
+    </section>
+
+    <section id="uploadResult" class="result-grid" hidden>
+      <article class="result-panel">
+        <h2>Kayit Sonucu</h2>
+        <dl class="details">
+          <div>
+            <dt>Durum</dt>
+            <dd id="uploadStatus"></dd>
+          </div>
+          <div>
+            <dt>PDF Hash</dt>
+            <dd id="uploadHash"></dd>
+          </div>
+          <div>
+            <dt>Transaction Hash</dt>
+            <dd id="uploadTx"></dd>
+          </div>
+          <div>
+            <dt>Blockchain Kayit Tarihi</dt>
+            <dd id="uploadTimestamp"></dd>
+          </div>
+          <div>
+            <dt>Ag</dt>
+            <dd id="uploadNetwork"></dd>
+          </div>
+          <div>
+            <dt>Dogrulama Baglantisi</dt>
+            <dd><a id="uploadLink" href="#"></a></dd>
+          </div>
+        </dl>
+      </article>
+
+      <article class="qr-panel">
+        <h2>QR Kod</h2>
+        <a id="qrLink" href="#">
+          <img id="qrImage" alt="Dogrulama QR kodu">
+        </a>
+      </article>
+    </section>
+  </main>
+
+  <script src="/app.js"></script>
+</body>
+</html>
