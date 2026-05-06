@@ -56,7 +56,7 @@ public sealed class DiplomaController(
             var pdfHash = await pdfHashService.CreateHashAsync(file, cancellationToken);
             var verification = await blockchainService.VerifyAsync(pdfHash.Bytes32, cancellationToken);
 
-            return Ok(ToVerifyResponse(pdfHash.HexHash, verification));
+            return Ok(ToVerifyResponse(pdfHash.HexHash, verification, "Geçersiz Diploma"));
         }
         catch (PdfValidationException ex)
         {
@@ -77,7 +77,7 @@ public sealed class DiplomaController(
             var hashBytes = HexHashConverter.ToBytes32(pdfHash);
             var verification = await blockchainService.VerifyAsync(hashBytes, cancellationToken);
 
-            return Ok(ToVerifyResponse(pdfHash, verification));
+            return Ok(ToVerifyResponse(pdfHash, verification, "Blockchain Kaydı Bulunamadı"));
         }
         catch (PdfValidationException ex)
         {
@@ -89,11 +89,14 @@ public sealed class DiplomaController(
         }
     }
 
-    private static VerifyDiplomaResponse ToVerifyResponse(string pdfHash, BlockchainVerificationResult verification)
+    private static VerifyDiplomaResponse ToVerifyResponse(
+        string pdfHash,
+        BlockchainVerificationResult verification,
+        string missingStatus)
     {
         var status = verification.Exists
             ? "Geçerli Diploma"
-            : "Blockchain Kaydı Bulunamadı";
+            : missingStatus;
 
         return new VerifyDiplomaResponse(
             status,

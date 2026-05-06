@@ -3,6 +3,9 @@ const verifyForm = document.querySelector("#verifyForm");
 
 wireFileName("#uploadFile", "#uploadFileName");
 wireFileName("#verifyFile", "#verifyFileName");
+wireDropState("#uploadFile");
+wireDropState("#verifyFile");
+wireCopyButtons();
 
 if (uploadForm) {
   uploadForm.addEventListener("submit", async (event) => {
@@ -32,7 +35,49 @@ function wireFileName(inputSelector, labelSelector) {
   }
 
   input.addEventListener("change", () => {
-    label.textContent = input.files?.[0]?.name || "PDF sec";
+    label.textContent = input.files?.[0]?.name || "PDF sec veya buraya surukle";
+  });
+}
+
+function wireDropState(inputSelector) {
+  const input = document.querySelector(inputSelector);
+  const zone = input?.closest(".file-zone");
+  const label = zone?.querySelector(".file-title");
+
+  if (!input || !zone) {
+    return;
+  }
+
+  ["dragenter", "dragover"].forEach((eventName) => {
+    zone.addEventListener(eventName, (event) => {
+      event.preventDefault();
+      zone.classList.add("drag-active");
+    });
+  });
+
+  ["dragleave", "drop"].forEach((eventName) => {
+    zone.addEventListener(eventName, (event) => {
+      event.preventDefault();
+      zone.classList.remove("drag-active");
+    });
+  });
+
+  zone.addEventListener("drop", (event) => {
+    const file = event.dataTransfer?.files?.[0];
+
+    if (!file) {
+      return;
+    }
+
+    const transfer = new DataTransfer();
+    transfer.items.add(file);
+    input.files = transfer.files;
+
+    if (label) {
+      label.textContent = file.name;
+    }
+
+    input.dispatchEvent(new Event("change", { bubbles: true }));
   });
 }
 
@@ -41,10 +86,15 @@ async function submitUpload() {
   const button = form.querySelector("button");
   const message = document.querySelector("#uploadMessage");
   const result = document.querySelector("#uploadResult");
+  const details = document.querySelector("#uploadDetails");
+  const empty = document.querySelector("#uploadEmpty");
+  const qrPlaceholder = document.querySelector("#qrPlaceholder");
+  const qrLink = document.querySelector("#qrLink");
+  const qrImage = document.querySelector("#qrImage");
 
   setBusy(button, true);
   hide(message);
-  hide(result);
+  show(result);
 
   try {
     const json = await sendForm("/upload", form);
@@ -57,9 +107,21 @@ async function submitUpload() {
     document.querySelector("#uploadLink").textContent = json.verificationUrl;
     document.querySelector("#uploadLink").href = json.verificationUrl;
     document.querySelector("#qrLink").href = json.verificationUrl;
-    document.querySelector("#qrImage").src = json.qrCodeDataUrl;
-    show(result);
+    qrImage.src = json.qrCodeDataUrl;
+    hide(empty);
+    show(details);
+    hide(qrPlaceholder);
+    show(qrLink);
+    show(qrImage);
   } catch (error) {
+    hide(details);
+    show(empty);
+    if (qrImage) {
+      qrImage.removeAttribute("src");
+      hide(qrImage);
+    }
+    hide(qrLink);
+    show(qrPlaceholder);
     showMessage(message, error.message, true);
   } finally {
     setBusy(button, false);
@@ -131,16 +193,47 @@ function renderVerifyResult(json) {
   show(document.querySelector("#verifyResult"));
 }
 
+function wireCopyButtons() {
+  document.addEventListener("click", async (event) => {
+    const button = event.target.closest(".copy-button");
+
+    if (!button) {
+      return;
+    }
+
+    const target = document.querySelector(button.dataset.copyTarget);
+    const text = target?.textContent?.trim();
+
+    if (!text || text === "-") {
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(text);
+      button.classList.add("copied");
+      setTimeout(() => button.classList.remove("copied"), 900);
+    } catch {
+      button.classList.remove("copied");
+    }
+  });
+}
+
 function statusClass(status) {
-  if (status === "Geçerli Diploma") {
-    return "status-valid";
+  const value = (status || "").toLocaleLowerCase("tr-TR");
+
+  if (value.includes("ersiz")) {
+    return "status-badge status-invalid";
   }
 
-  if (status === "Blockchain Kaydı Bulunamadı") {
-    return "status-missing";
+  if (value.includes("bulun")) {
+    return "status-badge status-missing";
   }
 
-  return "status-invalid";
+  if (value.includes("erli")) {
+    return "status-badge status-valid";
+  }
+
+  return "status-badge status-invalid";
 }
 
 function show(element) {

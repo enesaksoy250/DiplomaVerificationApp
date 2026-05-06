@@ -20,11 +20,16 @@
       <div class="panel-header">
         <p class="eyebrow">Sepolia MVP</p>
         <h1>Diploma Kayit</h1>
+        <p class="panel-description">PDF diplomanin SHA256 hash degerini blockchain uzerine kaydedin ve dogrulama baglantisini olusturun.</p>
       </div>
 
       <form id="uploadForm" class="form">
         <label class="file-zone" for="uploadFile">
-          <span id="uploadFileName">PDF sec</span>
+          <span class="file-icon">PDF</span>
+          <span class="file-copy">
+            <span id="uploadFileName" class="file-title">PDF sec veya buraya surukle</span>
+            <span class="file-hint">Maksimum 10 MB, yalnizca PDF</span>
+          </span>
           <input id="uploadFile" name="file" type="file" accept="application/pdf,.pdf" required>
         </label>
         <button class="primary-button" type="submit">Kaydet</button>
@@ -33,21 +38,31 @@
       <div id="uploadMessage" class="message" hidden></div>
     </section>
 
-    <section id="uploadResult" class="result-grid" hidden>
+    <section id="uploadResult" class="result-grid">
       <article class="result-panel">
-        <h2>Kayit Sonucu</h2>
-        <dl class="details">
+        <div class="section-heading">
+          <h2>Kayit Sonucu</h2>
+          <p>Blockchain kaydi ve dogrulama detaylari.</p>
+        </div>
+        <div id="uploadEmpty" class="empty-state">Diploma kaydedildiginde kayit sonucu burada gorunecektir.</div>
+        <dl id="uploadDetails" class="details" hidden>
           <div>
             <dt>Durum</dt>
             <dd id="uploadStatus"></dd>
           </div>
           <div>
             <dt>PDF Hash</dt>
-            <dd id="uploadHash"></dd>
+            <dd class="hash-cell">
+              <span id="uploadHash" class="hash-badge"></span>
+              <button class="copy-button" type="button" data-copy-target="#uploadHash" aria-label="PDF hash kopyala"></button>
+            </dd>
           </div>
           <div>
             <dt>Transaction Hash</dt>
-            <dd id="uploadTx"></dd>
+            <dd class="hash-cell">
+              <span id="uploadTx" class="hash-badge"></span>
+              <button class="copy-button" type="button" data-copy-target="#uploadTx" aria-label="Transaction hash kopyala"></button>
+            </dd>
           </div>
           <div>
             <dt>Blockchain Kayit Tarihi</dt>
@@ -59,15 +74,22 @@
           </div>
           <div>
             <dt>Dogrulama Baglantisi</dt>
-            <dd><a id="uploadLink" href="#"></a></dd>
+            <dd class="hash-cell">
+              <a id="uploadLink" class="hash-badge link-badge" href="#"></a>
+              <button class="copy-button" type="button" data-copy-target="#uploadLink" aria-label="Dogrulama baglantisi kopyala"></button>
+            </dd>
           </div>
         </dl>
       </article>
 
       <article class="qr-panel">
-        <h2>QR Kod</h2>
-        <a id="qrLink" href="#">
-          <img id="qrImage" alt="Dogrulama QR kodu">
+        <div class="section-heading centered">
+          <h2>QR Kod</h2>
+          <p>Dogrulama baglantisini acar.</p>
+        </div>
+        <div id="qrPlaceholder" class="qr-placeholder">Diploma kaydedildiğinde QR kod burada görünecektir.</div>
+        <a id="qrLink" class="qr-frame" href="#" hidden>
+          <img id="qrImage" alt="Dogrulama QR kodu" hidden>
         </a>
       </article>
     </section>

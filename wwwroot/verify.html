@@ -20,11 +20,16 @@
       <div class="panel-header">
         <p class="eyebrow">Blockchain Kontrolu</p>
         <h1>Diploma Dogrulama</h1>
+        <p class="panel-description">PDF dosyasini yukleyerek blockchain kaydiyla eslesip eslesmedigini kontrol edin.</p>
       </div>
 
       <form id="verifyForm" class="form">
         <label class="file-zone" for="verifyFile">
-          <span id="verifyFileName">PDF sec</span>
+          <span class="file-icon">PDF</span>
+          <span class="file-copy">
+            <span id="verifyFileName" class="file-title">PDF sec veya buraya surukle</span>
+            <span class="file-hint">Maksimum 10 MB, yalnizca PDF</span>
+          </span>
           <input id="verifyFile" name="file" type="file" accept="application/pdf,.pdf" required>
         </label>
         <button class="primary-button" type="submit">Dogrula</button>
@@ -35,7 +40,10 @@
 
     <section id="verifyResult" class="result-grid single" hidden>
       <article class="result-panel">
-        <h2>Dogrulama Sonucu</h2>
+        <div class="section-heading">
+          <h2>Dogrulama Sonucu</h2>
+          <p>Hash kaydinin blockchain uzerindeki durumu.</p>
+        </div>
         <dl class="details">
           <div>
             <dt>Durum</dt>
@@ -43,11 +51,17 @@
           </div>
           <div>
             <dt>PDF Hash</dt>
-            <dd id="verifyHash"></dd>
+            <dd class="hash-cell">
+              <span id="verifyHash" class="hash-badge"></span>
+              <button class="copy-button" type="button" data-copy-target="#verifyHash" aria-label="PDF hash kopyala"></button>
+            </dd>
           </div>
           <div>
             <dt>Transaction Hash</dt>
-            <dd id="verifyTx"></dd>
+            <dd class="hash-cell">
+              <span id="verifyTx" class="hash-badge"></span>
+              <button class="copy-button" type="button" data-copy-target="#verifyTx" aria-label="Transaction hash kopyala"></button>
+            </dd>
           </div>
           <div>
             <dt>Blockchain Kayit Tarihi</dt>
