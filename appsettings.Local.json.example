@@ -5,6 +5,10 @@
     "RpcUrl": "https://eth-sepolia.g.alchemy.com/v2/YOUR_API_KEY",
     "PrivateKey": "YOUR_DEPLOYER_OR_BACKEND_WALLET_PRIVATE_KEY",
     "ContractAddress": "0xYOUR_DEPLOYED_CONTRACT_ADDRESS",
+    "ContractStartBlock": 0,
     "VerificationBaseUrl": "https://localhost:5001"
+  },
+  "DiplomaRecordStorage": {
+    "ConnectionString": "Data Source=diploma-records.db"
   }
 }

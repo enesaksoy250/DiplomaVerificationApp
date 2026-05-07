@@ -13,6 +13,12 @@ Yapilacaklar/
 blockchain/cache/
 blockchain/artifacts/
 blockchain/typechain-types/
+diploma-records.db
+diploma-records.db-shm
+diploma-records.db-wal
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
 
 # User-specific files
 *.rsuser

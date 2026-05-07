@@ -11,7 +11,10 @@ builder.Services.Configure<Microsoft.AspNetCore.Http.Features.FormOptions>(optio
 });
 builder.Services.Configure<DiplomaVerificationApp.Options.BlockchainOptions>(
     builder.Configuration.GetSection("Blockchain"));
+builder.Services.Configure<DiplomaVerificationApp.Options.DiplomaRecordStorageOptions>(
+    builder.Configuration.GetSection("DiplomaRecordStorage"));
 builder.Services.AddSingleton<DiplomaVerificationApp.Services.IPdfHashService, DiplomaVerificationApp.Services.PdfHashService>();
+builder.Services.AddSingleton<DiplomaVerificationApp.Services.IDiplomaRecordRepository, DiplomaVerificationApp.Services.SqliteDiplomaRecordRepository>();
 builder.Services.AddSingleton<DiplomaVerificationApp.Services.IDiplomaBlockchainService, DiplomaVerificationApp.Services.DiplomaBlockchainService>();
 builder.Services.AddSingleton<DiplomaVerificationApp.Services.IVerificationLinkService, DiplomaVerificationApp.Services.VerificationLinkService>();
 builder.Services.AddSingleton<DiplomaVerificationApp.Services.IQrCodeService, DiplomaVerificationApp.Services.QrCodeService>();

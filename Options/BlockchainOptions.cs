@@ -12,5 +12,7 @@ public sealed class BlockchainOptions
 
     public string ContractAddress { get; init; } = string.Empty;
 
+    public ulong ContractStartBlock { get; init; }
+
     public string VerificationBaseUrl { get; init; } = string.Empty;
 }

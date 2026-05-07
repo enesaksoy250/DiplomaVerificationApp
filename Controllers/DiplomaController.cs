@@ -45,6 +45,10 @@ public sealed class DiplomaController(
         {
             return StatusCode(StatusCodes.Status500InternalServerError, new { status = "Konfigürasyon Hatası", error = ex.Message });
         }
+        catch (BlockchainStateVerificationException ex)
+        {
+            return StatusCode(StatusCodes.Status502BadGateway, new { status = "Blockchain Doğrulama Hatası", error = ex.Message });
+        }
     }
 
     [HttpPost("verify")]
