@@ -1,13 +1,13 @@
-# Blockchain-Based Diploma Verification System (MVP)
+# Blockchain-Based Diploma Verification System
 
 ![.NET](https://img.shields.io/badge/.NET-10.0-512BD4?style=for-the-badge&logo=dotnet)
 ![Solidity](https://img.shields.io/badge/Solidity-Smart%20Contract-363636?style=for-the-badge&logo=solidity)
 ![Ethereum](https://img.shields.io/badge/Ethereum-Sepolia-627EEA?style=for-the-badge&logo=ethereum)
-![Status](https://img.shields.io/badge/Status-MVP-success?style=for-the-badge)
+![Status](https://img.shields.io/badge/Status-Active-success?style=for-the-badge)
 
 ## 1. Proje Özeti
 
-**Blockchain-Based Diploma Verification System (MVP)**, PDF formatındaki diplomaların bütünlüğünü ve doğrulanabilirliğini Ethereum Sepolia ağı üzerinde sağlayan bir doğrulama sistemidir.
+**Blockchain-Based Diploma Verification System**, PDF formatındaki diplomaların bütünlüğünü ve doğrulanabilirliğini Ethereum Sepolia ağı üzerinde sağlayan bir doğrulama sistemidir.
 
 Bu sistemde diplomanın orijinal PDF içeriği blockchain'e kaydedilmez. Bunun yerine, PDF dosyasından üretilen **SHA-256 hash değeri** akıllı sözleşme üzerinde saklanır. Böylece:
 
@@ -26,13 +26,14 @@ Bu yaklaşım, **privacy-preserving verification** ve **immutable proof of exist
 | **Otomatik QR Kod** | Başarılı kayıt sonrası doğrulama URL'si için otomatik QR kod oluşturulur. |
 | **Mükerrer Kayıt Engelleme** | Aynı PDF hash değerinin ikinci kez kaydedilmesi smart contract seviyesinde engellenir. |
 | **Gerçek Zamanlı Doğrulama** | Yüklenen PDF'in hash değeri blockchain kaydıyla anlık olarak karşılaştırılır. |
+| **Transaction Hash Persistence** | Başarılı kayıt transaction hash'i doğrulama ekranında garanti gösterilebilmesi için uygulama tarafında SQLite'a kaydedilir. |
 | **Gizlilik Odaklı Tasarım** | Blockchain üzerinde yalnızca hash ve timestamp saklanır; diploma dosyasının içeriği kaydedilmez. |
 
 ## 3. Teknoloji Yığını
 
 | Katman | Teknolojiler |
 | --- | --- |
-| **Backend** | ASP.NET Core 10, C#, Nethereum, QRCoder |
+| **Backend** | ASP.NET Core 10, C#, Nethereum, QRCoder, SQLite |
 | **Blockchain** | Solidity Smart Contract, Ethereum Sepolia Testnet, Alchemy RPC |
 | **Frontend** | HTML5, CSS3, JavaScript |
 | **Hashing** | SHA-256 |
@@ -46,7 +47,7 @@ Proje, sürdürülebilirlik ve test edilebilirlik hedeflenerek servis odaklı bi
 | --- | --- |
 | **SOLID** | Hash üretimi, QR kod üretimi, doğrulama bağlantısı ve blockchain entegrasyonu ayrı servis sorumluluklarına bölünmüştür. |
 | **Clean Architecture** | Controller katmanı iş akışını yönetir; domain davranışları servisler üzerinden izole edilir. |
-| **Repository Pattern Yaklaşımı** | Blockchain smart contract, kalıcı veri kaynağı gibi ele alınır; erişim `IDiplomaBlockchainService` arayüzü arkasında soyutlanır. |
+| **Repository Pattern Yaklaşımı** | Blockchain erişimi `IDiplomaBlockchainService`, transaction hash kayıtları ise `IDiplomaRecordRepository` arayüzü arkasında soyutlanır. |
 | **Service-Oriented Design** | PDF validasyonu, SHA-256 dönüşümü, Nethereum çağrıları ve QR üretimi bağımsız servisler üzerinden yürütülür. |
 
 ### Kritik Mimari Bileşenler
@@ -56,6 +57,7 @@ Proje, sürdürülebilirlik ve test edilebilirlik hedeflenerek servis odaklı bi
 | `DiplomaController` | API / Orchestration | Sistemin dış dünyaya açılan ana giriş noktasıdır. `/upload`, `/verify` ve `/verification/{hash}` akışlarını yönetir. | PDF doğrulama, blockchain kaydı, QR üretimi ve response modelleme süreçlerini koordine eder. Servisleri arayüzler üzerinden kullanarak katmanlar arası bağımlılığı düşük tutar. |
 | `PdfHashService` | Core Logic / Validation | Diploma doğrulamasının temel güvenlik noktasıdır. PDF validasyonu, boyut kontrolü, dosya imzası kontrolü ve SHA-256 hash üretimi burada yapılır. | Blockchain'e yazılacak verinin güvenilir, deterministik ve şartnameye uygun üretilmesini sağlar. PDF içeriği saklanmadan yalnızca hash üzerinden doğrulama yapılmasının temelini oluşturur. |
 | `DiplomaBlockchainService` | Infrastructure / Blockchain Integration | Nethereum üzerinden Sepolia smart contract ile iletişim kuran ana servis katmanıdır. Kayıt, doğrulama, duplicate kontrolü ve transaction bilgisi alma sorumluluklarını taşır. | Uygulama ile Ethereum ağı arasındaki kritik sınırı yönetir. Smart contract çağrılarını soyutlayarak API katmanının blockchain detaylarından bağımsız kalmasını sağlar. |
+| `SqliteDiplomaRecordRepository` | Infrastructure / Persistence | Kayıt işlemi sonrasında oluşan transaction hash bilgisini PDF hash ile ilişkilendirerek yerel SQLite veritabanında saklar. | Doğrulama ekranında transaction hash'in event log sorgularına bağımlı kalmadan gösterilmesini sağlar. Blockchain üzerinde yine yalnızca hash ve timestamp tutulur; SQLite sadece uygulama tarafı transaction referansı için kullanılır. |
 | `HexHashConverter` | Core Logic / Type Conversion | Backend'de üretilen SHA-256 hash değeri hex string formatındadır; smart contract ise `bytes32` bekler. Bu dönüşüm hatasız yapılmazsa blockchain entegrasyonu çalışmaz. | Hash formatını normalize eder, 32 byte uzunluk ve hexadecimal geçerlilik kontrollerini yapar. C# ile Solidity arasındaki veri tipi uyumluluğunu garanti eder. |
 | `VerificationLinkService` | Application Service / URL Generation | QR kodun yönlendirdiği doğrulama bağlantısını üretir. `VerificationBaseUrl` boş olduğunda çalışma anındaki host ve port üzerinden dinamik URL oluşturur. | Ortama bağımlılığı azaltır ve local/deployment senaryolarında doğrulama linklerinin doğru host üzerinden üretilmesini sağlar. QR tabanlı doğrulama akışının merkezinde yer alır. |
 
@@ -73,6 +75,8 @@ SHA-256 Hash Generation
 Nethereum Integration
   ↓
 Ethereum Sepolia Smart Contract
+  ↓
+SQLite Transaction Hash Record
   ↓
 Verification Result + QR Code
 ```
@@ -140,12 +144,18 @@ dotnet restore
     "RpcUrl": "https://eth-sepolia.g.alchemy.com/v2/YOUR_API_KEY",
     "PrivateKey": "YOUR_PRIVATE_KEY",
     "ContractAddress": "0xYOUR_CONTRACT_ADDRESS",
+    "ContractStartBlock": 0,
     "VerificationBaseUrl": ""
+  },
+  "DiplomaRecordStorage": {
+    "ConnectionString": "Data Source=diploma-records.db"
   }
 }
 ```
 
 > `PrivateKey`, RPC URL ve API anahtarları GitHub'a yüklenmemelidir. Bu bilgiler `.gitignore` kapsamındaki local config dosyalarında tutulmalıdır.
+
+> `diploma-records.db` dosyası uygulama tarafından otomatik oluşturulur ve GitHub'a yüklenmemesi için `.gitignore` kapsamındadır.
 
 Uygulamayı çalıştırın:
 
@@ -181,4 +191,4 @@ npm run deploy:sepolia
 
 ---
 
-Bu MVP, diploma doğrulama senaryosunda belge gizliliğini korurken blockchain'in değiştirilemez kayıt yapısından yararlanır. Production ortamı için role-based access control, contract ownership, revocation mekanizması, audit logging ve CI/CD tabanlı deployment süreçleri eklenebilir.
+Bu sistem, diploma doğrulama senaryosunda belge gizliliğini korurken blockchain'in değiştirilemez kayıt yapısından yararlanır. Production ortamı için role-based access control, contract ownership, revocation mekanizması, audit logging ve CI/CD tabanlı deployment süreçleri eklenebilir.
