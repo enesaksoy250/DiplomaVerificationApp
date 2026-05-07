@@ -3,36 +3,36 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Diploma Dogrulama</title>
+  <title>Diploma Doğrulama</title>
   <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
   <header class="topbar">
     <a class="brand" href="/">Diploma Verification</a>
     <nav class="nav">
-      <a href="/">Kayit</a>
-      <a class="active" href="/verify.html">Dogrulama</a>
+      <a href="/">Kayıt</a>
+      <a class="active" href="/verify.html">Doğrulama</a>
     </nav>
   </header>
 
   <main class="shell">
     <section class="panel">
       <div class="panel-header">
-        <p class="eyebrow">Blockchain Kontrolu</p>
-        <h1>Diploma Dogrulama</h1>
-        <p class="panel-description">PDF dosyasini yukleyerek blockchain kaydiyla eslesip eslesmedigini kontrol edin.</p>
+        <p class="eyebrow">Blockchain Kontrolü</p>
+        <h1>Diploma Doğrulama</h1>
+        <p class="panel-description">PDF dosyasını yükleyerek blockchain kaydıyla eşleşip eşleşmediğini kontrol edin.</p>
       </div>
 
       <form id="verifyForm" class="form">
         <label class="file-zone" for="verifyFile">
           <span class="file-icon">PDF</span>
           <span class="file-copy">
-            <span id="verifyFileName" class="file-title">PDF sec veya buraya surukle</span>
-            <span class="file-hint">Maksimum 10 MB, yalnizca PDF</span>
+            <span id="verifyFileName" class="file-title">PDF seç veya buraya sürükle</span>
+            <span class="file-hint">Maksimum 10 MB, yalnızca PDF</span>
           </span>
           <input id="verifyFile" name="file" type="file" accept="application/pdf,.pdf" required>
         </label>
-        <button class="primary-button" type="submit">Dogrula</button>
+        <button class="primary-button" type="submit">Doğrula</button>
       </form>
 
       <div id="verifyMessage" class="message" hidden></div>
@@ -41,8 +41,8 @@
     <section id="verifyResult" class="result-grid single" hidden>
       <article class="result-panel">
         <div class="section-heading">
-          <h2>Dogrulama Sonucu</h2>
-          <p>Hash kaydinin blockchain uzerindeki durumu.</p>
+          <h2>Doğrulama Sonucu</h2>
+          <p>Hash kaydının blockchain üzerindeki durumu.</p>
         </div>
         <dl class="details">
           <div>
@@ -64,11 +64,11 @@
             </dd>
           </div>
           <div>
-            <dt>Blockchain Kayit Tarihi</dt>
+            <dt>Blockchain Kayıt Tarihi</dt>
             <dd id="verifyTimestamp"></dd>
           </div>
           <div>
-            <dt>Ag</dt>
+            <dt>Ağ</dt>
             <dd id="verifyNetwork"></dd>
           </div>
         </dl>

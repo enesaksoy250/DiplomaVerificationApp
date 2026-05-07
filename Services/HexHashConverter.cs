@@ -17,7 +17,7 @@ public static class HexHashConverter
     {
         if (string.IsNullOrWhiteSpace(hexHash))
         {
-            throw new PdfValidationException("Hash degeri zorunludur.");
+            throw new PdfValidationException("Hash değeri zorunludur.");
         }
 
         var normalized = hexHash.StartsWith("0x", StringComparison.OrdinalIgnoreCase)
@@ -26,12 +26,12 @@ public static class HexHashConverter
 
         if (normalized.Length != 64)
         {
-            throw new PdfValidationException("SHA256 hash degeri 32 byte uzunlugunda olmalidir.");
+            throw new PdfValidationException("SHA256 hash değeri 32 byte uzunluğunda olmalıdır.");
         }
 
         if (!normalized.All(Uri.IsHexDigit))
         {
-            throw new PdfValidationException("Hash degeri hexadecimal formatta olmalidir.");
+            throw new PdfValidationException("Hash değeri hexadecimal formatta olmalıdır.");
         }
 
         return normalized;

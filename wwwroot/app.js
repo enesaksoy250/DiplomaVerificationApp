@@ -35,7 +35,7 @@ function wireFileName(inputSelector, labelSelector) {
   }
 
   input.addEventListener("change", () => {
-    label.textContent = input.files?.[0]?.name || "PDF sec veya buraya surukle";
+    label.textContent = input.files?.[0]?.name || "PDF seç veya buraya sürükle";
   });
 }
 
@@ -177,7 +177,7 @@ async function parseResponse(response) {
   const json = await response.json().catch(() => ({}));
 
   if (!response.ok) {
-    throw new Error(json.error || json.status || "Islem basarisiz.");
+    throw new Error(json.error || json.status || "İşlem başarısız.");
   }
 
   return json;

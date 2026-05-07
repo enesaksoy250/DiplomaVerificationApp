@@ -11,22 +11,22 @@ public sealed class PdfHashService : IPdfHashService
     {
         if (file is null)
         {
-            throw new PdfValidationException("PDF dosyasi zorunludur.");
+            throw new PdfValidationException("PDF dosyası zorunludur.");
         }
 
         if (file.Length == 0)
         {
-            throw new PdfValidationException("Bos PDF dosyasi kabul edilmez.");
+            throw new PdfValidationException("Boş PDF dosyası kabul edilmez.");
         }
 
         if (file.Length > MaxFileSizeBytes)
         {
-            throw new PdfValidationException("PDF dosyasi en fazla 10 MB olabilir.");
+            throw new PdfValidationException("PDF dosyası en fazla 10 MB olabilir.");
         }
 
         if (!string.Equals(Path.GetExtension(file.FileName), ".pdf", StringComparison.OrdinalIgnoreCase))
         {
-            throw new PdfValidationException("Yalnizca PDF dosyalari kabul edilir.");
+            throw new PdfValidationException("Yalnızca PDF dosyaları kabul edilir.");
         }
 
         await using var stream = file.OpenReadStream();
@@ -36,7 +36,7 @@ public sealed class PdfHashService : IPdfHashService
 
         if (!HasPdfSignature(bytes))
         {
-            throw new PdfValidationException("Dosya icerigi gecerli bir PDF olarak algilanmadi.");
+            throw new PdfValidationException("Dosya içeriği geçerli bir PDF olarak algılanmadı.");
         }
 
         var hashBytes = SHA256.HashData(bytes);

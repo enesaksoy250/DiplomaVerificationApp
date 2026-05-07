@@ -17,7 +17,7 @@ public sealed class DiplomaBlockchainService(IOptions<BlockchainOptions> options
         var existing = await VerifyAsync(pdfHashBytes32, cancellationToken);
         if (existing.Exists)
         {
-            throw new DuplicateDiplomaException("Bu PDF hash degeri blockchain uzerinde zaten kayitli.");
+            throw new DuplicateDiplomaException("Bu PDF hash değeri blockchain üzerinde zaten kayıtlı.");
         }
 
         var web3 = CreateTransactionWeb3();
@@ -30,7 +30,7 @@ public sealed class DiplomaBlockchainService(IOptions<BlockchainOptions> options
         var verification = await VerifyAsync(pdfHashBytes32, cancellationToken);
         if (!verification.Exists)
         {
-            throw new InvalidOperationException("Blockchain kaydi transaction sonrasinda dogrulanamadi.");
+            throw new InvalidOperationException("Blockchain kaydı transaction sonrasında doğrulanamadı.");
         }
 
         return new BlockchainRegistrationResult(
@@ -70,12 +70,12 @@ public sealed class DiplomaBlockchainService(IOptions<BlockchainOptions> options
     {
         if (string.IsNullOrWhiteSpace(_options.RpcUrl))
         {
-            throw new BlockchainConfigurationException("Blockchain:RpcUrl ayari eksik.");
+            throw new BlockchainConfigurationException("Blockchain:RpcUrl ayarı eksik.");
         }
 
         if (string.IsNullOrWhiteSpace(_options.ContractAddress))
         {
-            throw new BlockchainConfigurationException("Blockchain:ContractAddress ayari eksik.");
+            throw new BlockchainConfigurationException("Blockchain:ContractAddress ayarı eksik.");
         }
 
         return new Web3(_options.RpcUrl);
@@ -85,7 +85,7 @@ public sealed class DiplomaBlockchainService(IOptions<BlockchainOptions> options
     {
         if (string.IsNullOrWhiteSpace(_options.PrivateKey))
         {
-            throw new BlockchainConfigurationException("Blockchain:PrivateKey ayari eksik.");
+            throw new BlockchainConfigurationException("Blockchain:PrivateKey ayarı eksik.");
         }
 
         var account = new Account(_options.PrivateKey, _options.ChainId);
@@ -115,7 +115,7 @@ public sealed class DiplomaBlockchainService(IOptions<BlockchainOptions> options
     {
         if (pdfHashBytes32.Length != 32)
         {
-            throw new ArgumentException("Hash degeri bytes32 icin tam 32 byte olmalidir.", nameof(pdfHashBytes32));
+            throw new ArgumentException("Hash değeri bytes32 için tam 32 byte olmalıdır.", nameof(pdfHashBytes32));
         }
     }
 }

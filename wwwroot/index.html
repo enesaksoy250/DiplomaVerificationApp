@@ -3,15 +3,15 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Diploma Kayit</title>
+  <title>Diploma Kayıt</title>
   <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
   <header class="topbar">
     <a class="brand" href="/">Diploma Verification</a>
     <nav class="nav">
-      <a class="active" href="/">Kayit</a>
-      <a href="/verify.html">Dogrulama</a>
+      <a class="active" href="/">Kayıt</a>
+      <a href="/verify.html">Doğrulama</a>
     </nav>
   </header>
 
@@ -19,16 +19,16 @@
     <section class="panel">
       <div class="panel-header">
         <p class="eyebrow">Sepolia MVP</p>
-        <h1>Diploma Kayit</h1>
-        <p class="panel-description">PDF diplomanin SHA256 hash degerini blockchain uzerine kaydedin ve dogrulama baglantisini olusturun.</p>
+        <h1>Diploma Kayıt</h1>
+        <p class="panel-description">PDF diplomanın SHA256 hash değerini blockchain üzerine kaydedin ve doğrulama bağlantısını oluşturun.</p>
       </div>
 
       <form id="uploadForm" class="form">
         <label class="file-zone" for="uploadFile">
           <span class="file-icon">PDF</span>
           <span class="file-copy">
-            <span id="uploadFileName" class="file-title">PDF sec veya buraya surukle</span>
-            <span class="file-hint">Maksimum 10 MB, yalnizca PDF</span>
+            <span id="uploadFileName" class="file-title">PDF seç veya buraya sürükle</span>
+            <span class="file-hint">Maksimum 10 MB, yalnızca PDF</span>
           </span>
           <input id="uploadFile" name="file" type="file" accept="application/pdf,.pdf" required>
         </label>
@@ -41,10 +41,10 @@
     <section id="uploadResult" class="result-grid">
       <article class="result-panel">
         <div class="section-heading">
-          <h2>Kayit Sonucu</h2>
-          <p>Blockchain kaydi ve dogrulama detaylari.</p>
+          <h2>Kayıt Sonucu</h2>
+          <p>Blockchain kaydı ve doğrulama detayları.</p>
         </div>
-        <div id="uploadEmpty" class="empty-state">Diploma kaydedildiginde kayit sonucu burada gorunecektir.</div>
+        <div id="uploadEmpty" class="empty-state">Diploma kaydedildiğinde kayıt sonucu burada görünecektir.</div>
         <dl id="uploadDetails" class="details" hidden>
           <div>
             <dt>Durum</dt>
@@ -65,18 +65,18 @@
             </dd>
           </div>
           <div>
-            <dt>Blockchain Kayit Tarihi</dt>
+            <dt>Blockchain Kayıt Tarihi</dt>
             <dd id="uploadTimestamp"></dd>
           </div>
           <div>
-            <dt>Ag</dt>
+            <dt>Ağ</dt>
             <dd id="uploadNetwork"></dd>
           </div>
           <div>
-            <dt>Dogrulama Baglantisi</dt>
+            <dt>Doğrulama Bağlantısı</dt>
             <dd class="hash-cell">
               <a id="uploadLink" class="hash-badge link-badge" href="#"></a>
-              <button class="copy-button" type="button" data-copy-target="#uploadLink" aria-label="Dogrulama baglantisi kopyala"></button>
+              <button class="copy-button" type="button" data-copy-target="#uploadLink" aria-label="Doğrulama bağlantısı kopyala"></button>
             </dd>
           </div>
         </dl>
@@ -85,11 +85,11 @@
       <article class="qr-panel">
         <div class="section-heading centered">
           <h2>QR Kod</h2>
-          <p>Dogrulama baglantisini acar.</p>
+          <p>Doğrulama bağlantısını açar.</p>
         </div>
         <div id="qrPlaceholder" class="qr-placeholder">Diploma kaydedildiğinde QR kod burada görünecektir.</div>
         <a id="qrLink" class="qr-frame" href="#" hidden>
-          <img id="qrImage" alt="Dogrulama QR kodu" hidden>
+          <img id="qrImage" alt="Doğrulama QR kodu" hidden>
         </a>
       </article>
     </section>
