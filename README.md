@@ -136,12 +136,12 @@ npm run deploy:sepolia
 
 ### Ekran Görüntüleri
 
-| Ekran | Beklenen Görsel |
+| Ekran | Görsel |
 | --- | --- |
-| **Diploma Kayıt Ekranı** | `screenshots/upload-screen.png` placeholder |
-| **Geçerli Diploma Sonucu** | `screenshots/valid-diploma.png` placeholder |
-| **Geçersiz Diploma Sonucu** | `screenshots/invalid-diploma.png` placeholder |
-| **Blockchain Kaydı Bulunamadı Sonucu** | `screenshots/blockchain-record-not-found.png` placeholder |
+| **Diploma Kayıt Ekranı** | <img src="screenshots/upload-screen.png" alt="Diploma kayıt ekranı" width="420"> |
+| **Geçerli Diploma Sonucu** | <img src="screenshots/valid-diploma.png" alt="Geçerli diploma sonucu" width="420"> |
+| **Geçersiz Diploma Sonucu** | <img src="screenshots/invalid-diploma.png" alt="Geçersiz diploma sonucu" width="420"> |
+| **Blockchain Kaydı Bulunamadı Sonucu** | <img src="screenshots/blockchain-record-not-found.png" alt="Blockchain kaydı bulunamadı sonucu" width="420"> |
 
 > Demo sunumunda aşağıdaki üç durumun ayrı ekran görüntüleriyle gösterilmesi önerilir: `Geçerli Diploma`, `Geçersiz Diploma`, `Blockchain Kaydı Bulunamadı`.
 
@@ -156,11 +156,11 @@ npm run deploy:sepolia
 
 ### Örnek Doğrulama Sonuçları
 
-| Durum | Senaryo | Ekran Görüntüsü Placeholder |
+| Durum | Senaryo | Ekran Görüntüsü |
 | --- | --- | --- |
-| `Geçerli Diploma` | Blockchain üzerinde kayıtlı, değiştirilmemiş PDF yüklendi. | `screenshots/valid-diploma.png` |
-| `Geçersiz Diploma` | PDF içeriği değiştirilmiş veya dosya doğrulaması başarısız. | `screenshots/invalid-diploma.png` |
-| `Blockchain Kaydı Bulunamadı` | QR/hash doğrulamasında ilgili hash için blockchain kaydı yok. | `screenshots/blockchain-record-not-found.png` |
+| `Geçerli Diploma` | Blockchain üzerinde kayıtlı, değiştirilmemiş PDF yüklendi. | [valid-diploma.png](screenshots/valid-diploma.png) |
+| `Geçersiz Diploma` | PDF içeriği değiştirilmiş veya dosya doğrulaması başarısız. | [invalid-diploma.png](screenshots/invalid-diploma.png) |
+| `Blockchain Kaydı Bulunamadı` | QR/hash doğrulamasında ilgili hash için blockchain kaydı yok. | [blockchain-record-not-found.png](screenshots/blockchain-record-not-found.png) |
 
 ---
 
