@@ -109,7 +109,7 @@ struct Diploma {
 
 | Ekran | Görsel |
 | --- | --- |
-| **Diploma Kayıt Ekranı** | <img src="screenshots/upload-screen.png" alt="Diploma kayıt ekranı" width="420"> |
+| **Diploma Kayıt Ekranı** | <img src="screenshots/upload-screen1.png" alt="Diploma kayıt ekranı" width="420"> |
 | **Geçerli Diploma Sonucu** | <img src="screenshots/valid-diploma.png" alt="Geçerli diploma sonucu" width="420"> |
 | **Geçersiz Diploma Sonucu** | <img src="screenshots/invalid-diploma.png" alt="Geçersiz diploma sonucu" width="420"> |
 | **Blockchain Kaydı Bulunamadı Sonucu** | <img src="screenshots/blockchain-record-not-found.png" alt="Blockchain kaydı bulunamadı sonucu" width="420"> |
