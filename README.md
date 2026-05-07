@@ -154,14 +154,6 @@ npm run deploy:sepolia
 | **Contract Address** | `0x...` |
 | **Explorer** | `https://sepolia.etherscan.io/tx/0x...` |
 
-### Örnek Doğrulama Sonuçları
-
-| Durum | Senaryo | Ekran Görüntüsü |
-| --- | --- | --- |
-| `Geçerli Diploma` | Blockchain üzerinde kayıtlı, değiştirilmemiş PDF yüklendi. | [valid-diploma.png](screenshots/valid-diploma.png) |
-| `Geçersiz Diploma` | PDF içeriği değiştirilmiş veya dosya doğrulaması başarısız. | [invalid-diploma.png](screenshots/invalid-diploma.png) |
-| `Blockchain Kaydı Bulunamadı` | QR/hash doğrulamasında ilgili hash için blockchain kaydı yok. | [blockchain-record-not-found.png](screenshots/blockchain-record-not-found.png) |
-
 ---
 
 Bu MVP, diploma doğrulama senaryosunda belge gizliliğini korurken blockchain'in değiştirilemez kayıt yapısından yararlanır. Production ortamı için role-based access control, contract ownership, revocation mekanizması, audit logging ve CI/CD tabanlı deployment süreçleri eklenebilir.
