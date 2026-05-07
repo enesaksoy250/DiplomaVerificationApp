@@ -49,6 +49,16 @@ Proje, sürdürülebilirlik ve test edilebilirlik hedeflenerek servis odaklı bi
 | **Repository Pattern Yaklaşımı** | Blockchain smart contract, kalıcı veri kaynağı gibi ele alınır; erişim `IDiplomaBlockchainService` arayüzü arkasında soyutlanır. |
 | **Service-Oriented Design** | PDF validasyonu, SHA-256 dönüşümü, Nethereum çağrıları ve QR üretimi bağımsız servisler üzerinden yürütülür. |
 
+### Kritik Mimari Bileşenler
+
+| Sınıf | Katman | Neden Kritik? | Stratejik Rol |
+| --- | --- | --- | --- |
+| `DiplomaController` | API / Orchestration | Sistemin dış dünyaya açılan ana giriş noktasıdır. `/upload`, `/verify` ve `/verification/{hash}` akışlarını yönetir. | PDF doğrulama, blockchain kaydı, QR üretimi ve response modelleme süreçlerini koordine eder. Servisleri arayüzler üzerinden kullanarak katmanlar arası bağımlılığı düşük tutar. |
+| `PdfHashService` | Core Logic / Validation | Diploma doğrulamasının temel güvenlik noktasıdır. PDF validasyonu, boyut kontrolü, dosya imzası kontrolü ve SHA-256 hash üretimi burada yapılır. | Blockchain'e yazılacak verinin güvenilir, deterministik ve şartnameye uygun üretilmesini sağlar. PDF içeriği saklanmadan yalnızca hash üzerinden doğrulama yapılmasının temelini oluşturur. |
+| `DiplomaBlockchainService` | Infrastructure / Blockchain Integration | Nethereum üzerinden Sepolia smart contract ile iletişim kuran ana servis katmanıdır. Kayıt, doğrulama, duplicate kontrolü ve transaction bilgisi alma sorumluluklarını taşır. | Uygulama ile Ethereum ağı arasındaki kritik sınırı yönetir. Smart contract çağrılarını soyutlayarak API katmanının blockchain detaylarından bağımsız kalmasını sağlar. |
+| `HexHashConverter` | Core Logic / Type Conversion | Backend'de üretilen SHA-256 hash değeri hex string formatındadır; smart contract ise `bytes32` bekler. Bu dönüşüm hatasız yapılmazsa blockchain entegrasyonu çalışmaz. | Hash formatını normalize eder, 32 byte uzunluk ve hexadecimal geçerlilik kontrollerini yapar. C# ile Solidity arasındaki veri tipi uyumluluğunu garanti eder. |
+| `VerificationLinkService` | Application Service / URL Generation | QR kodun yönlendirdiği doğrulama bağlantısını üretir. `VerificationBaseUrl` boş olduğunda çalışma anındaki host ve port üzerinden dinamik URL oluşturur. | Ortama bağımlılığı azaltır ve local/deployment senaryolarında doğrulama linklerinin doğru host üzerinden üretilmesini sağlar. QR tabanlı doğrulama akışının merkezinde yer alır. |
+
 Temel veri akışı:
 
 ```text
@@ -67,7 +77,44 @@ Ethereum Sepolia Smart Contract
 Verification Result + QR Code
 ```
 
-## 5. Kurulum (Setup)
+### API Endpointleri
+
+| Method | Endpoint | Amaç | Başarılı Yanıt |
+| --- | --- | --- | --- |
+| `POST` | `/upload` | PDF dosyasını validate eder, SHA-256 hash üretir, hash değerini Sepolia smart contract üzerine kaydeder ve QR kod üretir. | `Geçerli Diploma`, PDF hash, transaction hash, timestamp, ağ bilgisi, doğrulama URL'si ve QR kod data URL |
+| `POST` | `/verify` | Kullanıcının yüklediği PDF dosyasının hash değerini üretir ve blockchain kaydıyla karşılaştırır. | `Geçerli Diploma` veya `Geçersiz Diploma` |
+| `GET` | `/verification/{hash}` | QR kod / doğrulama linki üzerinden gelen hash değerini blockchain üzerinde sorgular. | `Geçerli Diploma` veya `Blockchain Kaydı Bulunamadı` |
+
+### Smart Contract Yapısı
+
+Smart contract, PDF içeriğini değil yalnızca SHA-256 hash değerini ve kayıt zamanını saklar.
+
+```solidity
+struct Diploma {
+    bool exists;
+    uint256 timestamp;
+}
+```
+
+| Contract Bileşeni | Açıklama |
+| --- | --- |
+| `mapping(bytes32 => Diploma)` | Her PDF hash değerini ilgili diploma kaydıyla eşleştirir. |
+| `registerDiploma(bytes32 pdfHash)` | Yeni diploma hash kaydı oluşturur. Aynı hash daha önce kayıtlıysa işlemi reddeder. |
+| `verifyDiploma(bytes32 pdfHash)` | Verilen hash için kayıt olup olmadığını ve blockchain timestamp değerini döndürür. |
+| `block.timestamp` | Kayıt zamanının zincir üzerindeki timestamp kaynağıdır. |
+
+## 5. Demo
+
+### Ekran Görüntüleri
+
+| Ekran | Görsel |
+| --- | --- |
+| **Diploma Kayıt Ekranı** | <img src="screenshots/upload-screen.png" alt="Diploma kayıt ekranı" width="420"> |
+| **Geçerli Diploma Sonucu** | <img src="screenshots/valid-diploma.png" alt="Geçerli diploma sonucu" width="420"> |
+| **Geçersiz Diploma Sonucu** | <img src="screenshots/invalid-diploma.png" alt="Geçersiz diploma sonucu" width="420"> |
+| **Blockchain Kaydı Bulunamadı Sonucu** | <img src="screenshots/blockchain-record-not-found.png" alt="Blockchain kaydı bulunamadı sonucu" width="420"> |
+
+## 6. Kurulum (Setup)
 
 ### Gereksinimler
 
@@ -131,28 +178,6 @@ Sepolia deployment:
 ```bash
 npm run deploy:sepolia
 ```
-
-## 6. Demo
-
-### Ekran Görüntüleri
-
-| Ekran | Görsel |
-| --- | --- |
-| **Diploma Kayıt Ekranı** | <img src="screenshots/upload-screen.png" alt="Diploma kayıt ekranı" width="420"> |
-| **Geçerli Diploma Sonucu** | <img src="screenshots/valid-diploma.png" alt="Geçerli diploma sonucu" width="420"> |
-| **Geçersiz Diploma Sonucu** | <img src="screenshots/invalid-diploma.png" alt="Geçersiz diploma sonucu" width="420"> |
-| **Blockchain Kaydı Bulunamadı Sonucu** | <img src="screenshots/blockchain-record-not-found.png" alt="Blockchain kaydı bulunamadı sonucu" width="420"> |
-
-> Demo sunumunda aşağıdaki üç durumun ayrı ekran görüntüleriyle gösterilmesi önerilir: `Geçerli Diploma`, `Geçersiz Diploma`, `Blockchain Kaydı Bulunamadı`.
-
-### Blockchain Transaction Kontrolü
-
-| Alan | Placeholder |
-| --- | --- |
-| **Network** | Sepolia |
-| **Transaction Hash** | `0x...` |
-| **Contract Address** | `0x...` |
-| **Explorer** | `https://sepolia.etherscan.io/tx/0x...` |
 
 ---
 
