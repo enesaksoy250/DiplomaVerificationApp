@@ -10,5 +10,15 @@
   },
   "DiplomaRecordStorage": {
     "ConnectionString": "Data Source=diploma-records.db"
+  },
+  "IdentityStorage": {
+    "ConnectionString": "Data Source=identity.db"
+  },
+  "DiplomaFileStorage": {
+    "RootPath": "App_Data/diplomas"
+  },
+  "SeedAdmin": {
+    "Email": "admin@example.com",
+    "Password": "Admin1234"
   }
 }

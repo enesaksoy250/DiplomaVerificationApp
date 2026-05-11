@@ -16,6 +16,10 @@ blockchain/typechain-types/
 diploma-records.db
 diploma-records.db-shm
 diploma-records.db-wal
+identity.db
+identity.db-shm
+identity.db-wal
+App_Data/
 *.sqlite
 *.sqlite-shm
 *.sqlite-wal
