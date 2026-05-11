@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Admin</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/">Diploma Verification</a>
+    <nav class="nav">
+      <a href="/">Kayıt</a>
+      <a href="/verify.html">Doğrulama</a>
+      <a class="active" href="/admin.html">Admin</a>
+      <a href="/student.html">Öğrenci</a>
+      <a href="/login.html" id="authLink">Giriş</a>
+    </nav>
+  </header>
+
+  <main class="shell">
+    <section class="result-grid">
+      <article class="result-panel">
+        <div class="section-heading">
+          <h2>Üniversite Oluştur</h2>
+          <p>Üniversite kaydı oluşturup kurumsal anahtar üretin.</p>
+        </div>
+        <form id="universityForm" class="form">
+          <label class="field">
+            <span>Üniversite Adı</span>
+            <input name="name" type="text" required>
+          </label>
+          <button class="primary-button" type="submit">Oluştur</button>
+        </form>
+        <div id="adminMessage" class="message" hidden></div>
+      </article>
+
+      <article class="result-panel">
+        <div class="section-heading">
+          <h2>Kullanıcı Oluştur</h2>
+          <p>Role bağlı kullanıcı hesabı açın.</p>
+        </div>
+        <form id="userForm" class="form">
+          <label class="field"><span>E-posta</span><input name="email" type="email" required></label>
+          <label class="field"><span>Parola</span><input name="password" type="password" required></label>
+          <label class="field"><span>Rol</span>
+            <select name="role" required>
+              <option value="University">University</option>
+              <option value="Student">Student</option>
+              <option value="Employer">Employer</option>
+              <option value="Admin">Admin</option>
+            </select>
+          </label>
+          <label class="field"><span>Üniversite Id</span><input name="universityId" type="text"></label>
+          <label class="field"><span>Öğrenci No</span><input name="studentIdentifier" type="text"></label>
+          <button class="primary-button" type="submit">Kullanıcı Oluştur</button>
+        </form>
+      </article>
+    </section>
+  </main>
+
+  <script src="/app.js"></script>
+</body>
+</html>

@@ -12,15 +12,18 @@
     <nav class="nav">
       <a class="active" href="/">Kayıt</a>
       <a href="/verify.html">Doğrulama</a>
+      <a href="/admin.html">Admin</a>
+      <a href="/student.html">Öğrenci</a>
+      <a href="/login.html" id="authLink">Giriş</a>
     </nav>
   </header>
 
   <main class="shell">
     <section class="panel">
       <div class="panel-header">
-        <p class="eyebrow">Sepolia MVP</p>
+        <p class="eyebrow">Sepolia</p>
         <h1>Diploma Kayıt</h1>
-        <p class="panel-description">PDF diplomanın SHA256 hash değerini blockchain üzerine kaydedin ve doğrulama bağlantısını oluşturun.</p>
+        <p class="panel-description">Yetkili üniversite hesabıyla PDF diplomanın SHA256 hash değerini imzalayın, saklayın ve blockchain üzerine kaydedin.</p>
       </div>
 
       <form id="uploadForm" class="form">
@@ -31,6 +34,10 @@
             <span class="file-hint">Maksimum 10 MB, yalnızca PDF</span>
           </span>
           <input id="uploadFile" name="file" type="file" accept="application/pdf,.pdf" required>
+        </label>
+        <label class="field">
+          <span>Öğrenci No</span>
+          <input name="studentIdentifier" type="text" autocomplete="off" required>
         </label>
         <button class="primary-button" type="submit">Kaydet</button>
       </form>
@@ -49,6 +56,18 @@
           <div>
             <dt>Durum</dt>
             <dd id="uploadStatus"></dd>
+          </div>
+          <div>
+            <dt>Üniversite</dt>
+            <dd id="uploadUniversity"></dd>
+          </div>
+          <div>
+            <dt>Öğrenci No</dt>
+            <dd id="uploadStudent"></dd>
+          </div>
+          <div>
+            <dt>İmza Durumu</dt>
+            <dd id="uploadSignatureStatus"></dd>
           </div>
           <div>
             <dt>PDF Hash</dt>

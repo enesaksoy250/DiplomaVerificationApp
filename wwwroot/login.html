@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Giriş</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/">Diploma Verification</a>
+    <nav class="nav">
+      <a href="/">Kayıt</a>
+      <a href="/verify.html">Doğrulama</a>
+      <a href="/admin.html">Admin</a>
+      <a href="/student.html">Öğrenci</a>
+      <a class="active" href="/login.html" id="authLink">Giriş</a>
+    </nav>
+  </header>
+
+  <main class="shell">
+    <section class="panel narrow">
+      <div class="panel-header">
+        <p class="eyebrow">Yetkili Erişim</p>
+        <h1>Giriş</h1>
+        <p class="panel-description">Rol bazlı diploma kayıt ve doğrulama ekranlarına erişin.</p>
+      </div>
+
+      <form id="loginForm" class="form">
+        <label class="field">
+          <span>E-posta</span>
+          <input name="email" type="email" autocomplete="username" required>
+        </label>
+        <label class="field">
+          <span>Parola</span>
+          <input name="password" type="password" autocomplete="current-password" required>
+        </label>
+        <button class="primary-button" type="submit">Giriş Yap</button>
+      </form>
+      <button id="logoutButton" class="secondary-button" type="button" hidden>Çıkış Yap</button>
+      <div id="loginMessage" class="message" hidden></div>
+    </section>
+  </main>
+
+  <script src="/app.js"></script>
+</body>
+</html>

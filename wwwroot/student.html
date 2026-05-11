@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Öğrenci Diplomaları</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/">Diploma Verification</a>
+    <nav class="nav">
+      <a href="/">Kayıt</a>
+      <a href="/verify.html">Doğrulama</a>
+      <a href="/admin.html">Admin</a>
+      <a class="active" href="/student.html">Öğrenci</a>
+      <a href="/login.html" id="authLink">Giriş</a>
+    </nav>
+  </header>
+
+  <main class="shell">
+    <section class="panel">
+      <div class="panel-header">
+        <p class="eyebrow">Öğrenci Paneli</p>
+        <h1>Diplomalarım</h1>
+        <p class="panel-description">Öğrenci numaranızla eşleşen blockchain kayıtları.</p>
+      </div>
+      <div id="studentDiplomas" class="list"></div>
+      <div id="studentMessage" class="message" hidden></div>
+    </section>
+  </main>
+
+  <script src="/app.js"></script>
+</body>
+</html>

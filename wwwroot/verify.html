@@ -12,6 +12,9 @@
     <nav class="nav">
       <a href="/">Kayıt</a>
       <a class="active" href="/verify.html">Doğrulama</a>
+      <a href="/admin.html">Admin</a>
+      <a href="/student.html">Öğrenci</a>
+      <a href="/login.html" id="authLink">Giriş</a>
     </nav>
   </header>
 
@@ -54,6 +57,25 @@
             <dd class="hash-cell">
               <span id="verifyHash" class="hash-badge"></span>
               <button class="copy-button" type="button" data-copy-target="#verifyHash" aria-label="PDF hash kopyala"></button>
+            </dd>
+          </div>
+          <div>
+            <dt>Üniversite</dt>
+            <dd id="verifyUniversity"></dd>
+          </div>
+          <div>
+            <dt>Öğrenci No</dt>
+            <dd id="verifyStudent"></dd>
+          </div>
+          <div>
+            <dt>İmza Durumu</dt>
+            <dd id="verifySignatureStatus"></dd>
+          </div>
+          <div>
+            <dt>İmza Hash</dt>
+            <dd class="hash-cell">
+              <span id="verifySignatureHash" class="hash-badge"></span>
+              <button class="copy-button" type="button" data-copy-target="#verifySignatureHash" aria-label="İmza hash kopyala"></button>
             </dd>
           </div>
           <div>
