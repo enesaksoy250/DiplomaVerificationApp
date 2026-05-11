@@ -7,4 +7,8 @@ public sealed record VerifyDiplomaResponse(
     long? Timestamp,
     string? RegisteredAtUtc,
     string? TransactionHash,
-    string Network);
+    string Network,
+    string? UniversityName,
+    string? StudentIdentifier,
+    string? SignatureHash,
+    bool SignatureValid);

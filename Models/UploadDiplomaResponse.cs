@@ -7,5 +7,9 @@ public sealed record UploadDiplomaResponse(
     long Timestamp,
     string RegisteredAtUtc,
     string Network,
+    string UniversityName,
+    string StudentIdentifier,
+    string SignatureHash,
+    bool SignatureValid,
     string VerificationUrl,
     string QrCodeDataUrl);

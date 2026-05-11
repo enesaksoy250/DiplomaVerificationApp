@@ -4,4 +4,6 @@ public sealed record BlockchainRegistrationResult(
     string TransactionHash,
     long Timestamp,
     string RegisteredAtUtc,
-    string Network);
+    string Network,
+    string? IssuerId,
+    string? SignatureHash);

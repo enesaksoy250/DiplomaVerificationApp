@@ -19,9 +19,15 @@ public sealed class DiplomaBlockchainService(
 
     private readonly BlockchainOptions _options = options.Value;
 
-    public async Task<BlockchainRegistrationResult> RegisterAsync(byte[] pdfHashBytes32, CancellationToken cancellationToken)
+    public async Task<BlockchainRegistrationResult> RegisterAsync(
+        byte[] pdfHashBytes32,
+        byte[] issuerIdBytes32,
+        byte[] signatureHashBytes32,
+        CancellationToken cancellationToken)
     {
         ValidateBytes32(pdfHashBytes32);
+        ValidateBytes32(issuerIdBytes32);
+        ValidateBytes32(signatureHashBytes32);
 
         var queryWeb3 = CreateQueryWeb3();
         var existing = await QueryBlockchainVerificationAsync(queryWeb3, pdfHashBytes32);
@@ -34,7 +40,12 @@ public sealed class DiplomaBlockchainService(
         var handler = web3.Eth.GetContractTransactionHandler<RegisterDiplomaFunction>();
         var receipt = await handler.SendRequestAndWaitForReceiptAsync(
             _options.ContractAddress,
-            new RegisterDiplomaFunction { PdfHash = pdfHashBytes32 },
+            new RegisterDiplomaFunction
+            {
+                PdfHash = pdfHashBytes32,
+                IssuerId = issuerIdBytes32,
+                SignatureHash = signatureHashBytes32
+            },
             cancellationToken);
 
         if (receipt.Status is null || receipt.Status.Value == 0)
@@ -49,22 +60,13 @@ public sealed class DiplomaBlockchainService(
         }
 
         var registeredAtUtc = verification.RegisteredAtUtc ?? DateTimeDisplayFormatter.FromUnixTimestamp(verification.Timestamp);
-        await diplomaRecordRepository.SaveAsync(
-            new DiplomaRecord(
-                ToDisplayHash(pdfHashBytes32),
-                receipt.TransactionHash,
-                _options.NetworkName,
-                _options.ContractAddress,
-                verification.Timestamp,
-                registeredAtUtc,
-                DateTimeOffset.UtcNow),
-            cancellationToken);
-
         return new BlockchainRegistrationResult(
             receipt.TransactionHash,
             verification.Timestamp,
             registeredAtUtc,
-            _options.NetworkName);
+            _options.NetworkName,
+            ToDisplayHash(issuerIdBytes32),
+            ToDisplayHash(signatureHashBytes32));
     }
 
     public async Task<BlockchainVerificationResult> VerifyAsync(byte[] pdfHashBytes32, CancellationToken cancellationToken)
@@ -82,7 +84,10 @@ public sealed class DiplomaBlockchainService(
             verification.Timestamp,
             verification.RegisteredAtUtc,
             transactionHash,
-            _options.NetworkName);
+            _options.NetworkName,
+            verification.IssuerId,
+            verification.SignatureHash,
+            verification.RegisteredBy);
     }
 
     private async Task<BlockchainVerificationResult> QueryBlockchainVerificationAsync(Web3 web3, byte[] pdfHashBytes32)
@@ -102,7 +107,10 @@ public sealed class DiplomaBlockchainService(
             timestamp,
             registeredAtUtc,
             null,
-            _options.NetworkName);
+            _options.NetworkName,
+            output.Exists ? ToDisplayHash(output.IssuerId) : null,
+            output.Exists ? ToDisplayHash(output.SignatureHash) : null,
+            output.Exists ? output.RegisteredBy : null);
     }
 
     private async Task<string?> GetRegistrationTransactionHashAsync(
@@ -241,7 +249,7 @@ public sealed class DiplomaBlockchainService(
             }
         }
 
-        return latestResult ?? new BlockchainVerificationResult(false, 0, null, null, _options.NetworkName);
+        return latestResult ?? new BlockchainVerificationResult(false, 0, null, null, _options.NetworkName, null, null, null);
     }
 
     private static void ValidateBytes32(byte[] pdfHashBytes32)
