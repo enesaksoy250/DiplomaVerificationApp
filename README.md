@@ -153,8 +153,6 @@ dotnet restore
 }
 ```
 
-> `PrivateKey`, RPC URL ve API anahtarları GitHub'a yüklenmemelidir. Bu bilgiler `.gitignore` kapsamındaki local config dosyalarında tutulmalıdır.
-
 > `diploma-records.db` dosyası uygulama tarafından otomatik oluşturulur ve GitHub'a yüklenmemesi için `.gitignore` kapsamındadır.
 
 Uygulamayı çalıştırın:
@@ -191,4 +189,4 @@ npm run deploy:sepolia
 
 ---
 
-Bu sistem, diploma doğrulama senaryosunda belge gizliliğini korurken blockchain'in değiştirilemez kayıt yapısından yararlanır. Production ortamı için role-based access control, contract ownership, revocation mekanizması, audit logging ve CI/CD tabanlı deployment süreçleri eklenebilir.
+Bu sistem, diploma doğrulama senaryosunda belge gizliliğini korurken blockchain'in değiştirilemez kayıt yapısından yararlanır.
