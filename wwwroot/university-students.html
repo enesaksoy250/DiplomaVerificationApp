@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Öğrenci Yönetimi</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/">Diploma Verification</a>
+    <nav class="nav" aria-label="Ana menü"></nav>
+  </header>
+
+  <main class="shell">
+    <section class="panel narrow">
+      <div class="panel-header">
+        <p class="eyebrow">Üniversite Paneli</p>
+        <h1>Öğrenci Yönetimi</h1>
+        <p class="panel-description">Kendi üniversitenize bağlı öğrenci hesabı oluşturun. Öğrenci otomatik olarak üniversitenizle ilişkilendirilir.</p>
+      </div>
+
+      <form id="studentCreationForm" class="form">
+        <label class="field">
+          <span>E-posta</span>
+          <input name="email" type="email" autocomplete="username" required>
+        </label>
+        <label class="field">
+          <span>Parola</span>
+          <input name="password" type="password" autocomplete="new-password" required>
+        </label>
+        <label class="field">
+          <span>Öğrenci No</span>
+          <input name="studentIdentifier" type="text" autocomplete="off" required>
+        </label>
+        <div class="form-actions">
+          <button class="primary-button wide" type="submit">Öğrenci Oluştur</button>
+          <button class="secondary-button" type="reset">Temizle</button>
+        </div>
+      </form>
+
+      <div id="studentCreationMessage" class="message" hidden></div>
+    </section>
+  </main>
+
+  <script src="/app.js"></script>
+</body>
+</html>

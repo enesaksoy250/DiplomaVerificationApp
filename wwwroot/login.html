@@ -9,13 +9,7 @@
 <body>
   <header class="topbar">
     <a class="brand" href="/">Diploma Verification</a>
-    <nav class="nav">
-      <a href="/">Kayıt</a>
-      <a href="/verify.html">Doğrulama</a>
-      <a href="/admin.html">Admin</a>
-      <a href="/student.html">Öğrenci</a>
-      <a class="active" href="/login.html" id="authLink">Giriş</a>
-    </nav>
+    <nav class="nav" aria-label="Ana menü"></nav>
   </header>
 
   <main class="shell">
@@ -35,9 +29,8 @@
           <span>Parola</span>
           <input name="password" type="password" autocomplete="current-password" required>
         </label>
-        <button class="primary-button" type="submit">Giriş Yap</button>
+        <button class="primary-button wide" type="submit">Giriş Yap</button>
       </form>
-      <button id="logoutButton" class="secondary-button" type="button" hidden>Çıkış Yap</button>
       <div id="loginMessage" class="message" hidden></div>
     </section>
   </main>

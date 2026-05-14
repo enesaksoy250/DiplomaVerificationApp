@@ -9,13 +9,7 @@
 <body>
   <header class="topbar">
     <a class="brand" href="/">Diploma Verification</a>
-    <nav class="nav">
-      <a class="active" href="/">Kayıt</a>
-      <a href="/verify.html">Doğrulama</a>
-      <a href="/admin.html">Admin</a>
-      <a href="/student.html">Öğrenci</a>
-      <a href="/login.html" id="authLink">Giriş</a>
-    </nav>
+    <nav class="nav" aria-label="Ana menü"></nav>
   </header>
 
   <main class="shell">
@@ -37,25 +31,45 @@
         </label>
         <label class="field">
           <span>Öğrenci No</span>
-          <input name="studentIdentifier" type="text" autocomplete="off" required>
+          <input id="uploadStudentIdentifier" name="studentIdentifier" type="text" autocomplete="off" required>
         </label>
-        <button class="primary-button" type="submit">Kaydet</button>
+        <div class="form-actions">
+          <button class="primary-button" type="submit">Kaydet</button>
+          <button class="secondary-button" type="reset">Temizle</button>
+        </div>
       </form>
 
       <div id="uploadMessage" class="message" hidden></div>
+
+      <div class="section-divider"></div>
+      <div class="section-heading compact">
+        <h2>Kayıtlı Öğrenci Hesapları</h2>
+        <p>Diploma kaydını mevcut öğrenci hesabına bağlamak için listeden seçim yapın.</p>
+      </div>
+      <div class="student-picker">
+        <label class="field">
+          <span>Öğrenci Hesabı</span>
+          <select id="studentAccountSelect">
+            <option value="">Öğrenci seçin</option>
+          </select>
+        </label>
+      </div>
     </section>
 
-    <section id="uploadResult" class="result-grid">
+    <section id="uploadResult" class="result-grid" hidden>
       <article class="result-panel">
         <div class="section-heading">
           <h2>Kayıt Sonucu</h2>
           <p>Blockchain kaydı ve doğrulama detayları.</p>
         </div>
-        <div id="uploadEmpty" class="empty-state">Diploma kaydedildiğinde kayıt sonucu burada görünecektir.</div>
+        <div id="uploadEmpty" class="empty-state">Lütfen belge yükleyin. Kayıt sonucu işlem tamamlandığında burada görünecektir.</div>
         <dl id="uploadDetails" class="details" hidden>
           <div>
             <dt>Durum</dt>
-            <dd id="uploadStatus"></dd>
+            <dd class="result-status-line">
+              <span id="uploadStatus"></span>
+              <span id="uploadTrustBadge" class="trust-badge" hidden>Verified by Ethereum Sepolia</span>
+            </dd>
           </div>
           <div>
             <dt>Üniversite</dt>

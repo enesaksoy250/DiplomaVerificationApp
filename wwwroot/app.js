@@ -3,13 +3,17 @@ const verifyForm = document.querySelector("#verifyForm");
 const loginForm = document.querySelector("#loginForm");
 const universityForm = document.querySelector("#universityForm");
 const userForm = document.querySelector("#userForm");
+const studentCreationForm = document.querySelector("#studentCreationForm");
+let adminUniversities = [];
 
 wireFileName("#uploadFile", "#uploadFileName");
 wireFileName("#verifyFile", "#verifyFileName");
 wireDropState("#uploadFile");
 wireDropState("#verifyFile");
 wireCopyButtons();
+wireFormResets();
 wireAuthState();
+wireUserRoleFields();
 
 if (uploadForm) {
   uploadForm.addEventListener("submit", async (event) => {
@@ -37,13 +41,22 @@ if (loginForm) {
   });
 }
 
-const logoutButton = document.querySelector("#logoutButton");
-if (logoutButton) {
-  logoutButton.addEventListener("click", async () => {
+document.addEventListener("click", async (event) => {
+  if (event.target.closest("#logoutButton")) {
     await fetch("/auth/logout", { method: "POST" });
     window.location.href = "/login.html";
-  });
-}
+  }
+});
+
+document.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-select-university]");
+
+  if (!button) {
+    return;
+  }
+
+  selectUniversityForUser(button.dataset.selectUniversity || "");
+});
 
 if (universityForm) {
   universityForm.addEventListener("submit", async (event) => {
@@ -59,8 +72,30 @@ if (userForm) {
   });
 }
 
+if (studentCreationForm) {
+  studentCreationForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    await submitUniversityStudent();
+  });
+}
+
 if (document.querySelector("#studentDiplomas")) {
   loadStudentDiplomas();
+}
+
+if (document.querySelector("#universitySelect")) {
+  loadAdminUniversities();
+}
+
+const universitySearch = document.querySelector("#universitySearch");
+if (universitySearch) {
+  universitySearch.addEventListener("input", () => {
+    renderAdminUniversityList(adminUniversities, universitySearch.value);
+  });
+}
+
+if (document.querySelector("#studentAccountSelect")) {
+  loadUniversityStudents();
 }
 
 function wireFileName(inputSelector, labelSelector) {
@@ -120,7 +155,7 @@ function wireDropState(inputSelector) {
 
 async function submitUpload() {
   const form = document.querySelector("#uploadForm");
-  const button = form.querySelector("button");
+  const button = form.querySelector("button[type='submit']");
   const message = document.querySelector("#uploadMessage");
   const result = document.querySelector("#uploadResult");
   const details = document.querySelector("#uploadDetails");
@@ -130,8 +165,10 @@ async function submitUpload() {
   const qrImage = document.querySelector("#qrImage");
 
   setBusy(button, true);
-  hide(message);
+  showLoadingMessage(message, "Blockchain onaylanıyor...");
   show(result);
+  hide(details);
+  show(empty);
 
   try {
     const json = await sendForm("/upload", form);
@@ -144,6 +181,7 @@ async function submitUpload() {
     document.querySelector("#uploadUniversity").textContent = json.universityName;
     document.querySelector("#uploadStudent").textContent = json.studentIdentifier;
     document.querySelector("#uploadSignatureStatus").textContent = json.signatureValid ? "Geçerli" : "Geçersiz";
+    toggleTrustBadge("#uploadTrustBadge", json.status, json.signatureValid);
     document.querySelector("#uploadLink").textContent = json.verificationUrl;
     document.querySelector("#uploadLink").href = json.verificationUrl;
     document.querySelector("#qrLink").href = json.verificationUrl;
@@ -153,6 +191,8 @@ async function submitUpload() {
     hide(qrPlaceholder);
     show(qrLink);
     show(qrImage);
+    await loadUniversityStudents();
+    hide(message);
   } catch (error) {
     hide(details);
     show(empty);
@@ -170,17 +210,18 @@ async function submitUpload() {
 
 async function submitVerify() {
   const form = document.querySelector("#verifyForm");
-  const button = form.querySelector("button");
+  const button = form.querySelector("button[type='submit']");
   const message = document.querySelector("#verifyMessage");
   const result = document.querySelector("#verifyResult");
 
   setBusy(button, true);
-  hide(message);
+  showLoadingMessage(message, "Blockchain kaydı kontrol ediliyor...");
   hide(result);
 
   try {
     const json = await sendForm("/verify", form);
     renderVerifyResult(json);
+    hide(message);
   } catch (error) {
     showMessage(message, error.message, true);
   } finally {
@@ -192,13 +233,14 @@ async function verifyHash(hash) {
   const message = document.querySelector("#verifyMessage");
   const result = document.querySelector("#verifyResult");
 
-  hide(message);
+  showLoadingMessage(message, "Blockchain kaydı kontrol ediliyor...");
   hide(result);
 
   try {
     const response = await fetch(`/verification/${encodeURIComponent(hash)}`);
     const json = await parseResponse(response);
     renderVerifyResult(json);
+    hide(message);
   } catch (error) {
     showMessage(message, error.message, true);
   }
@@ -227,6 +269,10 @@ async function parseResponse(response) {
   const json = await response.json().catch(() => ({}));
 
   if (!response.ok) {
+    if (json.error || json.status) {
+      throw new Error(json.error || json.status);
+    }
+
     if (response.status === 401) {
       throw new Error("Bu işlem için giriş yapmalısınız.");
     }
@@ -235,7 +281,15 @@ async function parseResponse(response) {
       throw new Error("Bu işlem için yetkiniz yok.");
     }
 
-    throw new Error(json.error || json.status || "İşlem başarısız.");
+    if (response.status === 404) {
+      throw new Error("İstek adresi bulunamadı. Uygulamayı yeniden başlatıp tekrar deneyin.");
+    }
+
+    if (response.status === 405) {
+      throw new Error("Bu işlem için gerekli endpoint güncel değil. Uygulamayı yeniden başlatıp tekrar deneyin.");
+    }
+
+    throw new Error("İşlem başarısız.");
   }
 
   return json;
@@ -252,6 +306,7 @@ function renderVerifyResult(json) {
   setText("#verifyStudent", json.studentIdentifier || "-");
   setText("#verifySignatureStatus", json.signatureValid ? "Geçerli" : "Geçersiz");
   setText("#verifySignatureHash", json.signatureHash || "-");
+  toggleTrustBadge("#verifyTrustBadge", json.status, json.signatureValid);
   show(document.querySelector("#verifyResult"));
 }
 
@@ -265,10 +320,20 @@ async function submitLogin() {
       email: formData.get("email"),
       password: formData.get("password")
     });
-    window.location.href = "/";
+    window.location.href = getSafeReturnUrl() || "/verify.html";
   } catch (error) {
     showMessage(message, error.message, true);
   }
+}
+
+function getSafeReturnUrl() {
+  const returnUrl = new URLSearchParams(window.location.search).get("returnUrl");
+
+  if (!returnUrl || !returnUrl.startsWith("/") || returnUrl.startsWith("//")) {
+    return null;
+  }
+
+  return returnUrl;
 }
 
 async function submitUniversity() {
@@ -279,8 +344,10 @@ async function submitUniversity() {
     const formData = new FormData(universityForm);
     const university = await sendJson("/admin/universities", { name: formData.get("name") });
     const keyedUniversity = await sendJson(`/admin/universities/${encodeURIComponent(university.id)}/keys`, {});
-    showMessage(message, `Üniversite oluşturuldu. Id: ${keyedUniversity.id}`, false);
+    showMessage(message, `Üniversite oluşturuldu ve yetkili formuna seçildi: ${keyedUniversity.name}`, false);
     universityForm.reset();
+    await loadAdminUniversities(keyedUniversity.id);
+    selectUniversityForUser(keyedUniversity.id);
   } catch (error) {
     showMessage(message, error.message, true);
   }
@@ -292,17 +359,210 @@ async function submitUser() {
 
   try {
     const formData = new FormData(userForm);
+    const role = formData.get("role");
+    const requiresUniversity = role === "University";
+
     await sendJson("/admin/users", {
       email: formData.get("email"),
       password: formData.get("password"),
-      role: formData.get("role"),
-      universityId: formData.get("universityId") || null,
-      studentIdentifier: formData.get("studentIdentifier") || null
+      role,
+      universityId: requiresUniversity ? formData.get("universityId") || null : null,
+      studentIdentifier: null
     });
-    showMessage(message, "Kullanıcı oluşturuldu.", false);
+    showMessage(message, "Kurum kullanıcısı oluşturuldu.", false);
     userForm.reset();
+    updateUserRoleFields();
   } catch (error) {
     showMessage(message, error.message, true);
+  }
+}
+
+async function submitUniversityStudent() {
+  const message = document.querySelector("#studentCreationMessage");
+  hide(message);
+
+  try {
+    const formData = new FormData(studentCreationForm);
+    const student = await sendJson("/university/students", {
+      email: formData.get("email"),
+      password: formData.get("password"),
+      studentIdentifier: formData.get("studentIdentifier")
+    });
+
+    showMessage(message, `Öğrenci hesabı oluşturuldu: ${student.email}`, false);
+    studentCreationForm.reset();
+    await loadUniversityStudents();
+  } catch (error) {
+    showMessage(message, error.message, true);
+  }
+}
+
+function wireUserRoleFields() {
+  if (!userForm) {
+    return;
+  }
+
+  const roleSelect = userForm.querySelector("select[name='role']");
+  roleSelect?.addEventListener("change", updateUserRoleFields);
+  updateUserRoleFields();
+}
+
+function updateUserRoleFields() {
+  if (!userForm) {
+    return;
+  }
+
+  const role = userForm.querySelector("select[name='role']")?.value;
+  const universityField = document.querySelector("#userUniversityField");
+  const studentField = document.querySelector("#studentIdentifierField");
+  const universitySelect = userForm.querySelector("select[name='universityId']");
+  const studentInput = userForm.querySelector("input[name='studentIdentifier']");
+  const shouldShowUniversity = role === "University";
+  const shouldShowStudent = false;
+
+  toggleField(universityField, universitySelect, shouldShowUniversity);
+  toggleField(studentField, studentInput, shouldShowStudent);
+}
+
+function toggleField(field, input, shouldShow) {
+  if (field) {
+    field.hidden = !shouldShow;
+  }
+
+  if (!input) {
+    return;
+  }
+
+  input.required = shouldShow;
+
+  if (!shouldShow) {
+    input.value = "";
+  }
+}
+
+async function loadAdminUniversities(selectedUniversityId = "") {
+  const select = document.querySelector("#universitySelect");
+  const list = document.querySelector("#universityList");
+  const search = document.querySelector("#universitySearch");
+
+  try {
+    const response = await fetch("/admin/universities");
+    const universities = await parseResponse(response);
+    adminUniversities = universities;
+
+    if (select) {
+      select.innerHTML = '<option value="">Üniversite seçin</option>';
+      for (const university of universities) {
+        const option = document.createElement("option");
+        option.value = university.id;
+        option.textContent = `${university.name} (${university.id})`;
+        select.appendChild(option);
+      }
+
+      if (selectedUniversityId) {
+        select.value = selectedUniversityId;
+      }
+    }
+
+    if (list) {
+      renderAdminUniversityList(universities, search?.value || "");
+    }
+  } catch (error) {
+    const message = document.querySelector("#adminMessage");
+    showMessage(message, error.message, true);
+  }
+}
+
+function renderAdminUniversityList(universities, query = "") {
+  const list = document.querySelector("#universityList");
+  if (!list) {
+    return;
+  }
+
+  const normalizedQuery = query.trim().toLocaleLowerCase("tr-TR");
+  const filteredUniversities = normalizedQuery
+    ? universities.filter((university) =>
+        university.name.toLocaleLowerCase("tr-TR").includes(normalizedQuery) ||
+        university.id.toLocaleLowerCase("tr-TR").includes(normalizedQuery))
+    : universities;
+
+  list.innerHTML = "";
+  if (!filteredUniversities.length) {
+    list.textContent = universities.length ? "Arama kriterine uygun üniversite yok." : "Henüz üniversite kaydı yok.";
+    return;
+  }
+
+  for (const university of filteredUniversities) {
+    const item = document.createElement("article");
+    item.className = "list-item compact university-list-item";
+    item.innerHTML = `
+      <div class="list-item-main">
+        <strong>${escapeHtml(university.name)}</strong>
+        <span class="status-badge ${university.hasKeyPair ? "status-valid" : "status-missing"}">
+          ${university.hasKeyPair ? "Blockchain Onaylı" : "Anahtar Bekleniyor"}
+        </span>
+      </div>
+      <div class="university-id-row">
+        <span class="hash-badge" id="universityId-${escapeHtml(university.id)}">${escapeHtml(university.id)}</span>
+        <button class="copy-button" type="button" data-copy-target="#universityId-${escapeHtml(university.id)}" aria-label="Kurum ID kopyala"></button>
+      </div>
+      <div class="list-actions">
+        <button class="secondary-button compact-action" type="button" data-select-university="${escapeHtml(university.id)}">+ Yetkili Ekle</button>
+      </div>
+    `;
+    list.appendChild(item);
+  }
+}
+
+function selectUniversityForUser(universityId) {
+  const roleSelect = userForm?.querySelector("select[name='role']");
+  const universitySelect = userForm?.querySelector("select[name='universityId']");
+  const emailInput = userForm?.querySelector("input[name='email']");
+
+  if (roleSelect) {
+    roleSelect.value = "University";
+  }
+
+  updateUserRoleFields();
+
+  if (universitySelect) {
+    universitySelect.value = universityId;
+  }
+
+  emailInput?.focus();
+}
+
+async function loadUniversityStudents() {
+  const select = document.querySelector("#studentAccountSelect");
+
+  if (!select) {
+    return;
+  }
+
+  try {
+    const response = await fetch("/university/students");
+    const students = await parseResponse(response);
+
+    select.innerHTML = '<option value="">Öğrenci seçin</option>';
+    for (const student of students) {
+      const option = document.createElement("option");
+      option.value = student.studentIdentifier;
+      const diplomaStatus = student.hasDiploma
+        ? `Diploma kayıtlı (${student.diplomaCount})`
+        : "Diploma yok";
+      option.textContent = `${student.studentIdentifier} - ${student.email || "E-posta yok"} - ${diplomaStatus}`;
+      select.appendChild(option);
+    }
+
+    select.onchange = () => {
+      setTextInputValue("#uploadStudentIdentifier", select.value);
+    };
+  } catch (error) {
+    const option = document.createElement("option");
+    option.value = "";
+    option.textContent = error.message;
+    select.innerHTML = "";
+    select.appendChild(option);
   }
 }
 
@@ -336,18 +596,74 @@ async function loadStudentDiplomas() {
 }
 
 async function wireAuthState() {
-  const authLink = document.querySelector("#authLink");
-  if (!authLink) {
+  const nav = document.querySelector(".nav");
+
+  if (!nav) {
     return;
   }
 
   const response = await fetch("/auth/me").catch(() => null);
-  const session = response ? await response.json().catch(() => null) : null;
-  if (session?.authenticated) {
-    authLink.textContent = session.email || "Hesap";
-    authLink.href = "/login.html";
-    show(document.querySelector("#logoutButton"));
+  const session = response?.ok ? await response.json().catch(() => null) : null;
+  renderNavigation(nav, session);
+}
+
+function renderNavigation(nav, session) {
+  const roles = session?.roles || [];
+  const authenticated = Boolean(session?.authenticated);
+  const links = [];
+
+  nav.classList.remove("nav-ready");
+  if (!authenticated) {
+    links.push({ href: "/login.html", text: "Giriş Yap" });
+  } else if (roles.includes("Admin")) {
+    links.push({ href: "/admin.html", text: "Admin" });
+    links.push({ href: "/verify.html", text: "Doğrulama" });
+  } else if (roles.includes("University")) {
+    links.push({ href: "/index.html", text: "Kayıt" });
+    links.push({ href: "/university-students.html", text: "Öğrenci Yönetimi" });
+    links.push({ href: "/verify.html", text: "Doğrulama" });
+  } else if (roles.includes("Student")) {
+    links.push({ href: "/student.html", text: "Öğrenci" });
+  } else if (roles.includes("Employer")) {
+    links.push({ href: "/verify.html", text: "Doğrulama" });
   }
+
+  nav.innerHTML = "";
+  for (const link of links) {
+    const anchor = document.createElement("a");
+    anchor.href = link.href;
+    anchor.textContent = link.text;
+    if (isCurrentPath(link.href)) {
+      anchor.className = "active";
+    }
+    nav.appendChild(anchor);
+  }
+
+  if (authenticated) {
+    const account = document.createElement("span");
+    account.className = "account-pill";
+    account.textContent = session.email || "Hesap";
+    nav.appendChild(account);
+
+    const logout = document.createElement("button");
+    logout.id = "logoutButton";
+    logout.className = "nav-logout";
+    logout.type = "button";
+    logout.textContent = "Çıkış Yap";
+    nav.appendChild(logout);
+  }
+
+  nav.classList.add("nav-ready");
+}
+
+function isCurrentPath(href) {
+  const path = window.location.pathname;
+
+  if (href === "/index.html") {
+    return path.endsWith("/index.html");
+  }
+
+  return path.endsWith(href);
 }
 
 function wireCopyButtons() {
@@ -372,6 +688,34 @@ function wireCopyButtons() {
     } catch {
       button.classList.remove("copied");
     }
+  });
+}
+
+function wireFormResets() {
+  document.addEventListener("reset", (event) => {
+    const form = event.target;
+
+    setTimeout(() => {
+      if (form.id === "uploadForm") {
+        setText("#uploadFileName", "PDF seç veya buraya sürükle");
+        const studentSelect = document.querySelector("#studentAccountSelect");
+        if (studentSelect) {
+          studentSelect.value = "";
+        }
+        hide(document.querySelector("#uploadResult"));
+        hide(document.querySelector("#uploadMessage"));
+      }
+
+      if (form.id === "verifyForm") {
+        setText("#verifyFileName", "PDF seç veya buraya sürükle");
+        hide(document.querySelector("#verifyResult"));
+        hide(document.querySelector("#verifyMessage"));
+      }
+
+      if (form.id === "userForm") {
+        updateUserRoleFields();
+      }
+    }, 0);
   });
 }
 
@@ -408,7 +752,26 @@ function hide(element) {
 function setBusy(button, isBusy) {
   if (button) {
     button.disabled = isBusy;
+    if (isBusy) {
+      button.dataset.originalText = button.dataset.originalText || button.textContent;
+      button.textContent = button.textContent.includes("Doğrula")
+        ? "Doğrulanıyor..."
+        : "Kaydediliyor...";
+    } else if (button.dataset.originalText) {
+      button.textContent = button.dataset.originalText;
+      delete button.dataset.originalText;
+    }
   }
+}
+
+function showLoadingMessage(element, text) {
+  if (!element) {
+    return;
+  }
+
+  element.innerHTML = `<span class="spinner" aria-hidden="true"></span><span>${escapeHtml(text)}</span>`;
+  element.className = "message loading";
+  show(element);
 }
 
 function showMessage(element, text, isError) {
@@ -425,6 +788,27 @@ function setText(selector, text) {
   const element = document.querySelector(selector);
   if (element) {
     element.textContent = text;
+  }
+}
+
+function setTextInputValue(selector, value) {
+  const input = document.querySelector(selector);
+  if (input) {
+    input.value = value;
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+  }
+}
+
+function toggleTrustBadge(selector, status, signatureValid) {
+  const badge = document.querySelector(selector);
+  if (!badge) {
+    return;
+  }
+
+  if (status === "Geçerli Diploma" && signatureValid) {
+    show(badge);
+  } else {
+    hide(badge);
   }
 }
 

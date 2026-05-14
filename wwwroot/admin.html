@@ -9,20 +9,15 @@
 <body>
   <header class="topbar">
     <a class="brand" href="/">Diploma Verification</a>
-    <nav class="nav">
-      <a href="/">Kayıt</a>
-      <a href="/verify.html">Doğrulama</a>
-      <a class="active" href="/admin.html">Admin</a>
-      <a href="/student.html">Öğrenci</a>
-      <a href="/login.html" id="authLink">Giriş</a>
-    </nav>
+    <nav class="nav" aria-label="Ana menü"></nav>
   </header>
 
   <main class="shell">
-    <section class="result-grid">
+    <section class="dashboard-grid">
       <article class="result-panel">
         <div class="section-heading">
-          <h2>Üniversite Oluştur</h2>
+          <p class="eyebrow">Admin Dashboard</p>
+          <h2>Üniversite Yönetimi</h2>
           <p>Üniversite kaydı oluşturup kurumsal anahtar üretin.</p>
         </div>
         <form id="universityForm" class="form">
@@ -30,30 +25,49 @@
             <span>Üniversite Adı</span>
             <input name="name" type="text" required>
           </label>
-          <button class="primary-button" type="submit">Oluştur</button>
+          <div class="form-actions">
+            <button class="secondary-button" type="submit">Oluştur</button>
+            <button class="secondary-button" type="reset">Temizle</button>
+          </div>
         </form>
+        <div class="section-divider"></div>
+        <div class="section-heading compact">
+          <h2>Kayıtlı Üniversiteler</h2>
+          <p>Kullanıcı oluştururken bu listeden seçim yapılır.</p>
+        </div>
+        <label class="field admin-search">
+          <span>Ara</span>
+          <input id="universitySearch" type="search" placeholder="Üniversite adı veya kurum ID">
+        </label>
+        <div id="universityList" class="list compact-list"></div>
         <div id="adminMessage" class="message" hidden></div>
       </article>
 
       <article class="result-panel">
         <div class="section-heading">
-          <h2>Kullanıcı Oluştur</h2>
-          <p>Role bağlı kullanıcı hesabı açın.</p>
+          <p class="eyebrow">Yetkili Hesap</p>
+          <h2>Kurum Kullanıcısı</h2>
+          <p>Üniversite yetkilisi veya doğrulama yapacak işveren kurumu hesabı açın.</p>
         </div>
         <form id="userForm" class="form">
           <label class="field"><span>E-posta</span><input name="email" type="email" required></label>
           <label class="field"><span>Parola</span><input name="password" type="password" required></label>
           <label class="field"><span>Rol</span>
             <select name="role" required>
-              <option value="University">University</option>
-              <option value="Student">Student</option>
-              <option value="Employer">Employer</option>
-              <option value="Admin">Admin</option>
+              <option value="University">Üniversite</option>
+              <option value="Employer">İşveren Kurum</option>
             </select>
           </label>
-          <label class="field"><span>Üniversite Id</span><input name="universityId" type="text"></label>
-          <label class="field"><span>Öğrenci No</span><input name="studentIdentifier" type="text"></label>
-          <button class="primary-button" type="submit">Kullanıcı Oluştur</button>
+          <label id="userUniversityField" class="field"><span>Üniversite</span>
+            <select id="universitySelect" name="universityId">
+              <option value="">Üniversite seçin</option>
+            </select>
+          </label>
+          <label id="studentIdentifierField" class="field" hidden><span>Öğrenci No</span><input name="studentIdentifier" type="text"></label>
+          <div class="form-actions">
+            <button class="primary-button" type="submit">Kullanıcı Oluştur</button>
+            <button class="secondary-button" type="reset">Temizle</button>
+          </div>
         </form>
       </article>
     </section>
