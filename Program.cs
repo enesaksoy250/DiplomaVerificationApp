@@ -80,6 +80,55 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.Use(async (context, next) =>
+{
+    var protectedPages = new Dictionary<PathString, string[]>
+    {
+        ["/index.html"] = [DiplomaVerificationApp.Security.AppRoles.University],
+        ["/verify.html"] =
+        [
+            DiplomaVerificationApp.Security.AppRoles.Admin,
+            DiplomaVerificationApp.Security.AppRoles.University,
+            DiplomaVerificationApp.Security.AppRoles.Employer
+        ],
+        ["/admin.html"] = [DiplomaVerificationApp.Security.AppRoles.Admin],
+        ["/student.html"] = [DiplomaVerificationApp.Security.AppRoles.Student],
+        ["/university-students.html"] = [DiplomaVerificationApp.Security.AppRoles.University]
+    };
+
+    if (context.Request.Path == "/")
+    {
+        if (context.User.Identity?.IsAuthenticated != true)
+        {
+            context.Response.Redirect("/login.html");
+            return;
+        }
+
+        context.Response.Redirect(context.User.IsInRole(DiplomaVerificationApp.Security.AppRoles.Student)
+            ? "/student.html"
+            : "/verify.html");
+        return;
+    }
+
+    if (protectedPages.TryGetValue(context.Request.Path, out var allowedRoles))
+    {
+        if (context.User.Identity?.IsAuthenticated != true)
+        {
+            var returnUrl = context.Request.PathBase + context.Request.Path + context.Request.QueryString;
+            context.Response.Redirect($"/login.html?returnUrl={Uri.EscapeDataString(returnUrl)}");
+            return;
+        }
+
+        if (!allowedRoles.Any(context.User.IsInRole))
+        {
+            context.Response.Redirect("/");
+            return;
+        }
+    }
+
+    await next();
+});
+
 app.UseDefaultFiles();
 app.UseStaticFiles();
 
