@@ -56,9 +56,24 @@ public sealed class AdminController(
     [HttpPost("users")]
     public async Task<IActionResult> CreateUser(CreateUserRequest request)
     {
-        if (!AppRoles.All.Contains(request.Role))
+        if (request.Role is not AppRoles.University and not AppRoles.Employer)
         {
-            return BadRequest(new { error = "Geçersiz rol." });
+            return BadRequest(new { error = "Admin yalnızca üniversite yetkilisi veya işveren kurumu hesabı oluşturabilir." });
+        }
+
+        if (request.Role == AppRoles.University && string.IsNullOrWhiteSpace(request.UniversityId))
+        {
+            return BadRequest(new { error = "Üniversite seçimi zorunludur." });
+        }
+
+        if (request.Role == AppRoles.University)
+        {
+            var universityExists = await dbContext.Universities.AnyAsync(
+                university => university.Id == request.UniversityId);
+            if (!universityExists)
+            {
+                return BadRequest(new { error = "Seçilen üniversite bulunamadı." });
+            }
         }
 
         var user = new ApplicationUser
@@ -66,8 +81,8 @@ public sealed class AdminController(
             UserName = request.Email,
             Email = request.Email,
             EmailConfirmed = true,
-            UniversityId = request.UniversityId,
-            StudentIdentifier = request.StudentIdentifier
+            UniversityId = request.Role == AppRoles.University ? request.UniversityId : null,
+            StudentIdentifier = null
         };
 
         var result = await userManager.CreateAsync(user, request.Password);
