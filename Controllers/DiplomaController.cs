@@ -46,6 +46,8 @@ public sealed class DiplomaController(
                 return BadRequest(new { status = "Geçersiz Diploma", error = "Öğrenci numarası zorunludur." });
             }
 
+            var normalizedStudentIdentifier = studentIdentifier.Trim();
+
             var university = await dbContext.Universities.SingleOrDefaultAsync(
                 item => item.Id == currentUser.UniversityId,
                 cancellationToken);
@@ -54,11 +56,20 @@ public sealed class DiplomaController(
                 return BadRequest(new { status = "Geçersiz Diploma", error = "Kullanıcı bir üniversiteye bağlı değil." });
             }
 
+            var universityStudents = await userManager.GetUsersInRoleAsync(AppRoles.Student);
+            var studentExists = universityStudents.Any(student =>
+                student.UniversityId == university.Id &&
+                string.Equals(student.StudentIdentifier, normalizedStudentIdentifier, StringComparison.OrdinalIgnoreCase));
+            if (!studentExists)
+            {
+                return BadRequest(new { status = "Geçersiz Diploma", error = "Seçilen öğrenci bu üniversiteye kayıtlı değil." });
+            }
+
             var pdfHash = await pdfHashService.CreateHashAsync(file, cancellationToken);
             var signature = await universityKeyService.SignDiplomaAsync(
                 university,
                 pdfHash.HexHash,
-                studentIdentifier,
+                normalizedStudentIdentifier,
                 cancellationToken);
             var blockchainResult = await blockchainService.RegisterAsync(
                 pdfHash.Bytes32,
@@ -80,7 +91,7 @@ public sealed class DiplomaController(
                     DateTimeOffset.UtcNow,
                     university.Id,
                     university.Name,
-                    studentIdentifier,
+                    normalizedStudentIdentifier,
                     storedFilePath,
                     signature.Signature,
                     signature.SignatureHash,
@@ -97,7 +108,7 @@ public sealed class DiplomaController(
                 blockchainResult.RegisteredAtUtc,
                 blockchainResult.Network,
                 university.Name,
-                studentIdentifier,
+                normalizedStudentIdentifier,
                 signature.SignatureHash,
                 true,
                 verificationUrl,
