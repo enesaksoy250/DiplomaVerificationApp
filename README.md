@@ -136,10 +136,13 @@ struct Diploma {
 
 | Ekran | Görsel |
 | --- | --- |
-| **Diploma Kayıt Ekranı** | <img src="screenshots/upload-screen1.png" alt="Diploma kayıt ekranı" width="420"> |
-| **Geçerli Diploma Sonucu** | <img src="screenshots/valid-diploma.png" alt="Geçerli diploma sonucu" width="420"> |
-| **Geçersiz Diploma Sonucu** | <img src="screenshots/invalid-diploma.png" alt="Geçersiz diploma sonucu" width="420"> |
-| **Blockchain Kaydı Bulunamadı Sonucu** | <img src="screenshots/blockchain-record-not-found.png" alt="Blockchain kaydı bulunamadı sonucu" width="420"> |
+| **Giriş Ekranı** | <img src="screenshots/Giri%C5%9FEkran%C4%B1.png" alt="Giriş ekranı" width="420"> |
+| **Admin Dashboard** | <img src="screenshots/AdminEkran%C4%B1.png" alt="Admin dashboard ekranı" width="420"> |
+| **Üniversite - Öğrenci Hesabı Oluşturma** | <img src="screenshots/%C3%9Cniversite%C3%96%C4%9FrenciHesab%C4%B1Olu%C5%9Fturma.png" alt="Üniversite öğrenci hesabı oluşturma ekranı" width="420"> |
+| **Üniversite - Diploma Kayıt** | <img src="screenshots/%C3%9CniversiteDiplomaKay%C4%B1t.png" alt="Üniversite diploma kayıt ekranı" width="420"> |
+| **Üniversite - Diploma Kayıt Sonucu** | <img src="screenshots/%C3%9CniversiteDiplomaKay%C4%B1tSonu%C3%A7.png" alt="Üniversite diploma kayıt sonucu ekranı" width="420"> |
+| **Diploma Doğrulama** | <img src="screenshots/%C3%9CniversiteDiplomaDo%C4%9Frulama.png" alt="Diploma doğrulama ekranı" width="420"> |
+| **Öğrenci - Diploma Kontrol** | <img src="screenshots/%C3%96%C4%9FrenciDiplomaSorgulama.png" alt="Öğrenci diploma kontrol ekranı" width="420"> |
 
 ## 6. Kurulum (Setup)
 
