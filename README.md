@@ -208,10 +208,6 @@ dotnet restore
 }
 ```
 
-> `PrivateKey`, RPC URL ve seed admin parolası GitHub'a yüklenmemelidir. Bu bilgiler `.gitignore` kapsamındaki local config dosyalarında tutulmalıdır.
-
-> `diploma-records.db`, `identity.db` ve `App_Data/diplomas` uygulama tarafından lokal oluşturulur ve GitHub'a yüklenmemesi için `.gitignore` kapsamındadır.
-
 Uygulamayı çalıştırın:
 
 ```bash
