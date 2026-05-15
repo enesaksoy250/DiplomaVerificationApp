@@ -25,6 +25,8 @@ Bu yaklaşım, **privacy-preserving verification** ve **immutable proof of exist
 | **Immutable Storage** | Diploma hash kayıtları Ethereum Sepolia Testnet üzerinde smart contract aracılığıyla tutulur. |
 | **SHA-256 Hashing** | PDF dosyasının içeriğinden deterministik SHA-256 hash değeri üretilir. |
 | **Rol Bazlı Yetkilendirme** | `Admin`, `University`, `Student` ve `Employer` rolleri ASP.NET Identity üzerinden yönetilir. |
+| **Rol Bazlı Navigasyon** | Kullanıcı menüsü ve sayfa erişimleri aktif oturumdaki role göre dinamik filtrelenir. |
+| **Üniversite Öğrenci Yönetimi** | Üniversite yetkilileri yalnızca kendi kurumlarına bağlı öğrenci hesapları oluşturabilir ve diploma kaydını bu hesaplardan seçerek yapar. |
 | **Kurumsal İmza** | Her üniversite için RSA key pair üretilir; diploma kaydı üniversite private key'i ile imzalanır. |
 | **PDF Arşivleme** | Kaydedilen PDF dosyaları hash tabanlı dosya adıyla `App_Data/diplomas` altında tutulur. |
 | **Otomatik QR Kod** | Başarılı kayıt sonrası doğrulama URL'si için otomatik QR kod oluşturulur. |
@@ -61,7 +63,8 @@ Proje, sürdürülebilirlik ve test edilebilirlik hedeflenerek servis odaklı bi
 | --- | --- | --- | --- |
 | `DiplomaController` | API / Orchestration | Sistemin dış dünyaya açılan ana giriş noktasıdır. `/upload`, `/verify` ve `/verification/{hash}` akışlarını yönetir. | PDF doğrulama, blockchain kaydı, QR üretimi ve response modelleme süreçlerini koordine eder. Servisleri arayüzler üzerinden kullanarak katmanlar arası bağımlılığı düşük tutar. |
 | `AuthController` | API / Identity | Kullanıcı oturumu, login/logout ve mevcut kullanıcı bilgisi akışlarını yönetir. | Cookie tabanlı authentication davranışını API seviyesinde merkezi hale getirir. |
-| `AdminController` | API / Administration | Üniversite, üniversite key pair ve kullanıcı yönetimi işlemlerini sağlar. | Kurum ve rol yönetiminin kontrollü biçimde sadece `Admin` rolüyle yapılmasını sağlar. |
+| `AdminController` | API / Administration | Üniversite, üniversite key pair, üniversite yetkilisi ve işveren kurumu hesabı yönetimini sağlar. | Admin'in kurumsal üst yönetim sorumluluğunu taşır; genel öğrenci trafiğini üniversite yetkililerine bırakır. |
+| `UniversityController` | API / University Operations | Üniversite rolündeki kullanıcıların kendi kurumlarına bağlı öğrenci hesaplarını oluşturmasını ve listelemesini sağlar. | Öğrenci yönetimini ilgili üniversiteye devreder; diploma kaydının yalnızca o üniversiteye bağlı öğrenci hesapları için yapılabilmesini destekler. |
 | `PdfHashService` | Core Logic / Validation | Diploma doğrulamasının temel güvenlik noktasıdır. PDF validasyonu, boyut kontrolü, dosya imzası kontrolü ve SHA-256 hash üretimi burada yapılır. | Blockchain'e yazılacak verinin güvenilir, deterministik ve şartnameye uygun üretilmesini sağlar. PDF içeriği saklanmadan yalnızca hash üzerinden doğrulama yapılmasının temelini oluşturur. |
 | `DiplomaBlockchainService` | Infrastructure / Blockchain Integration | Nethereum üzerinden Sepolia smart contract ile iletişim kuran ana servis katmanıdır. Kayıt, doğrulama, duplicate kontrolü ve transaction bilgisi alma sorumluluklarını taşır. | Uygulama ile Ethereum ağı arasındaki kritik sınırı yönetir. Smart contract çağrılarını soyutlayarak API katmanının blockchain detaylarından bağımsız kalmasını sağlar. |
 | `UniversityKeyService` | Security / Signature | Üniversite RSA key pair üretimi, private key koruma, diploma imzalama ve imza doğrulama davranışlarını taşır. | Kurumsal imza doğrulamasının güvenlik merkezidir; private key'i Data Protection ile korur. |
@@ -100,11 +103,27 @@ Verification Result + QR Code
 | `GET` | `/auth/me` | Public | Mevcut oturum ve rol bilgisini döndürür. |
 | `POST` | `/admin/universities` | `Admin` | Üniversite kaydı oluşturur. |
 | `POST` | `/admin/universities/{id}/keys` | `Admin` | Üniversite için RSA key pair üretir. |
-| `POST` | `/admin/users` | `Admin` | Rol bazlı kullanıcı oluşturur. |
+| `POST` | `/admin/users` | `Admin` | Üniversite yetkilisi veya işveren kurumu hesabı oluşturur. |
+| `GET` | `/university/students` | `University` | Giriş yapan üniversiteye bağlı öğrenci hesaplarını ve diploma durumlarını listeler. |
+| `POST` | `/university/students` | `University` | Giriş yapan üniversiteye otomatik bağlı öğrenci hesabı oluşturur. |
 | `POST` | `/upload` | `University` | PDF'i validate eder, imzalar, saklar ve hash değerini Contract V2 üzerine kaydeder. |
 | `POST` | `/verify` | `Employer`, `University`, `Admin` | PDF hash, blockchain kaydı ve kurumsal imzayı doğrular. |
 | `GET` | `/verification/{hash}` | Public | QR/doğrulama linki üzerinden public doğrulama yapar. |
 | `GET` | `/student/diplomas` | `Student` | Öğrencinin kendi öğrenci numarasıyla eşleşen diplomalarını listeler. |
+
+### Rol Bazlı Erişim Akışı
+
+Uygulama açılışında login olmayan kullanıcılar varsayılan olarak `/login.html` ekranına yönlendirilir. Korumalı sayfalara doğrudan erişim denemelerinde kullanıcı oturumu yoksa login ekranına, rol yetkisi yoksa uygun varsayılan ekrana yönlendirilir.
+
+| Sayfa | Erişim |
+| --- | --- |
+| `/admin.html` | Sadece `Admin` |
+| `/index.html` | Sadece `University` |
+| `/university-students.html` | Sadece `University` |
+| `/verify.html` | `Admin`, `University`, `Employer` |
+| `/student.html` | Sadece `Student` |
+
+Frontend navigasyonu da aynı rol bilgisine göre dinamik oluşturulur. Login olmayan kullanıcıya doğrulama veya yönetim sekmeleri gösterilmez; çıkış butonu yalnızca oturum açmış kullanıcı menüsünde görünür.
 
 ### Smart Contract Yapısı
 
@@ -230,13 +249,15 @@ Deploy sonrası yeni Contract V2 adresini `appsettings.Local.json` içindeki `Bl
 ### Manuel Test Akışı
 
 1. `SeedAdmin` kullanıcısıyla `/login.html` üzerinden giriş yapın.
-2. `/admin.html` ekranında üniversite oluşturun ve key pair üretin.
-3. `University`, `Employer` ve `Student` rolleri için kullanıcı oluşturun.
-4. `University` rolüyle PDF ve öğrenci numarası girerek diploma kaydedin.
-5. `Employer` rolüyle aynı PDF'i doğrulayın; sonuç `Geçerli Diploma` ve imza durumu geçerli olmalıdır.
-6. Farklı/değiştirilmiş PDF ile doğrulama yapın; sonuç `Geçersiz Diploma` olmalıdır.
-7. QR doğrulama linkini oturum açmadan test edin.
-8. `Student` rolüyle `/student.html` ekranında öğrenciye ait diplomaları kontrol edin.
+2. `/admin.html` ekranında üniversite oluşturun, key pair üretin ve ilgili üniversite için ilk `University` yetkilisini oluşturun.
+3. Aynı admin ekranında doğrulama yapacak `Employer` hesabı oluşturun.
+4. `University` rolüyle giriş yapıp `/university-students.html` ekranında kendi üniversitenize bağlı öğrenci hesabı oluşturun.
+5. `University` rolüyle `/index.html` ekranında öğrenci hesabını dropdown üzerinden seçerek PDF diploma kaydı oluşturun.
+6. `Employer`, `University` veya `Admin` rolüyle `/verify.html` ekranında aynı PDF'i doğrulayın; sonuç `Geçerli Diploma` ve imza durumu geçerli olmalıdır.
+7. Farklı/değiştirilmiş PDF ile doğrulama yapın; sonuç `Geçersiz Diploma` olmalıdır.
+8. Blockchain üzerinde kaydı olmayan bir PDF ile doğrulama yapın; sonuç `Blockchain Kaydı Bulunamadı` olmalıdır.
+9. QR doğrulama linkini public `/verification/{hash}` adresi üzerinden test edin.
+10. `Student` rolüyle `/student.html` ekranında öğrenciye ait diplomaları kontrol edin.
 
 ---
 
