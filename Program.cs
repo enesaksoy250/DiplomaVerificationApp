@@ -64,6 +64,7 @@ builder.Services.AddSingleton<DiplomaVerificationApp.Services.IDiplomaFileStorag
 builder.Services.AddSingleton<DiplomaVerificationApp.Services.IDiplomaBlockchainService, DiplomaVerificationApp.Services.DiplomaBlockchainService>();
 builder.Services.AddSingleton<DiplomaVerificationApp.Services.IVerificationLinkService, DiplomaVerificationApp.Services.VerificationLinkService>();
 builder.Services.AddSingleton<DiplomaVerificationApp.Services.IQrCodeService, DiplomaVerificationApp.Services.QrCodeService>();
+builder.Services.AddScoped<DiplomaVerificationApp.Services.IDiplomaWorkflowService, DiplomaVerificationApp.Services.DiplomaWorkflowService>();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
